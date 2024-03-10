@@ -21,6 +21,7 @@
     "obsidian": "^0.12.0",
     "randomcolor": "^0.6.2",
     "rollup": "^2.32.1",
+    "rollup-plugin-css-only": "^4.5.2",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
   },

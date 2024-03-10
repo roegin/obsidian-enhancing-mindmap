@@ -6,5 +6,10 @@
 	"description": "This is a enhancing mindmap plugin for Obsidian. You can edit mindmap on markdown.",
 	"author": "Mark",
 	"authorUrl": "https://github.com/MarkMindCkm/obsidian-enhancing-mindmap",
-	"isDesktopOnly": false
+	"isDesktopOnly": false,
+	
+		"js": ["main.js", "src/dhtml/dhtmlxgantt.js"],
+		"css": ["styles.css", "src/dhtml/dhtmlxgantt.css"]
+	
+	
 }

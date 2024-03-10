@@ -404,4 +404,15 @@ export class MindMapView extends TextFileView implements HoverParent {
     super.onMoreOptionsMenu(menu);
   }
 
+    // 获取脑图的根节点
+      getRootNode(): INodeData {
+        // 你的逻辑实现，返回根节点
+        // 例如：
+        if (this.mindmap) {
+          //@ts-ignore
+            return this.mindmap.root ;
+        }
+        return null;
+    }
+
 }

@@ -1,6 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import css from 'rollup-plugin-css-only';
 
 const isProd = (process.env.BUILD === 'production');
 
@@ -24,8 +25,14 @@ export default {
 
   external: ['obsidian'],
   plugins: [
-    typescript(),
+    typescript({
+      // 仅包括 TypeScript 文件
+      include: ['**/*.ts'],
+      // 排除 JavaScript 文件
+      exclude: ['**/*.js']
+    }),
     nodeResolve({browser: true}),
     commonjs(),
+    css({ output: 'bundle.css' })
   ]
 };

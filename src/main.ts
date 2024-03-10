@@ -4,7 +4,8 @@ import {
   TFile,
   TFolder,
   ViewState,
-  MarkdownView
+  MarkdownView,
+  ItemView
 } from 'obsidian';
 // import DEFAULT_SETTINGS from './setting'
 import { around } from 'monkey-around'
@@ -14,6 +15,8 @@ import { MindMapSettingsTab } from './settingTab'
 import { MindMapView, mindmapViewType } from "./MindMapView";
 import { frontMatterKey, basicFrontmatter } from './constants';
 import { t } from './lang/helpers'
+import { transformAndSyncData } from './dGantte/transformAndSyncData';
+import { GanttChartView } from './dGantte/GanttChartView';
 
 
 export default class MindMapPlugin extends Plugin {
@@ -25,6 +28,7 @@ export default class MindMapPlugin extends Plugin {
   async onload() {
 
     await this.loadSettings();
+    //await this.loadStylesheet("path/to/dhtmlxgantt.css");
 
     this.addCommand({
       id: 'Create New MindMap',
@@ -110,6 +114,25 @@ export default class MindMapPlugin extends Plugin {
     this.registerView(mindmapViewType, (leaf) => new MindMapView(leaf, this));
     this.registerEvents();
     this.registerMonkeyAround();
+
+    this.registerView("gantt-chart-view", (leaf) => new GanttChartView(leaf));
+
+    this.addCommand({
+        id: 'open-gantt-chart-view',
+        name: '打开脑图连接甘特图',
+        callback: async () => {
+            let activeLeaf = this.app.workspace.activeLeaf;
+            if (activeLeaf) {
+                // Create a new leaf by splitting the active leaf horizontally
+                const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
+                await newLeaf.setViewState({
+                    type: "gantt-chart-view",
+                });
+            }
+        }
+    });
+
+  
 
 
     this.addSettingTab(new MindMapSettingsTab(this.app, this));
@@ -328,3 +351,4 @@ export default class MindMapPlugin extends Plugin {
 
 
 }
+
