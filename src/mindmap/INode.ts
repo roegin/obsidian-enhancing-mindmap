@@ -42,7 +42,9 @@ export class INodeData implements INode{
     pid?:string;
     mdText?:string;
     isRoot?:Boolean;
-    children?:INodeData[]
+    children?:INodeData[];
+    startDate?: string;
+    endDate?: string;
 }
 
 export default class Node {

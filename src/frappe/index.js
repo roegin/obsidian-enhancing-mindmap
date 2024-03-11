@@ -280,8 +280,8 @@ export default class Gantt {
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
             // convert to Date objects
-            task._start = date_utils.parse(task.start);
-            task._end = date_utils.parse(task.end);
+            task._start = date_utils.parseExtended(task.start);
+            task._end = date_utils.parseExtended(task.end); //
 
             // make task invalid if duration too large
             if (date_utils.diff(task._end, task._start, 'year') > 10) {

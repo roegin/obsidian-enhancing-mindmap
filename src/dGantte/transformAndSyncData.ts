@@ -2,12 +2,14 @@ interface MindMapNode {
     id: string;
     text: string;
     children?: MindMapNode[];
+    startDate?:string;
+    endDate?:string;
   }
 
 interface GanttTask {
     id: string;
     name: string;
-    start: string;
+    start: string;//
     end: string;
    // duration: number;
     progress: number;
@@ -24,8 +26,8 @@ export function transformAndSyncData(mindMapRoot: MindMapNode[]): GanttTask[] {
       const ganttTask: GanttTask = {
         id: node.id,
         name: node.text,
-        start: "2024-03-10",  // 示例起始日期
-        end: "2024-03-15",    // 示例结束日期
+        start: node.startDate||"2024-03-10",  // 示例起始日期
+        end: node.endDate||"2024-03-10",    // 示例结束日期
        // duration: 1,
         progress: 20,
         parent: parentId || '',

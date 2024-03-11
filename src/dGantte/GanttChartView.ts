@@ -118,7 +118,7 @@ export class GanttChartView extends ItemView {
                 arrow_curve: 5,
                 padding: 18,
                 view_mode: 'Day',
-                date_format: 'YYYY-MM-DD',
+                date_format: 'YYYY-MM-DD-HH:mm',
                 language: 'en',
                 custom_popup_html: null
             });
@@ -150,7 +150,7 @@ export class GanttChartView extends ItemView {
     traverseMindMap(node: INodeData): MindMapNode[] {
         // 遍历脑图节点，并构建需要的数据结构
         let result: MindMapNode[] = [];
-        result.push({ id: node.id, text: node.text, children: node.children! });
+        result.push({ id: node.id, text: node.text, children: node.children! ,...node});
 
         if (node.children) {
             node.children.forEach(child => {
@@ -158,7 +158,7 @@ export class GanttChartView extends ItemView {
             });
         }
 
-        //console.log('result',result)
+        console.log('result',result)
         return result;
     }
   }

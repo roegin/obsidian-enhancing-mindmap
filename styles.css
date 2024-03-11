@@ -145,7 +145,7 @@
   position:absolute;
   background:#333;
   border:1px solid #000;
-  width:56px;
+  width:100px;
   border-radius: 0.25rem;
   z-index: 60;
 }

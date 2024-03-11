@@ -338,31 +338,40 @@ export class MindMapView extends TextFileView implements HoverParent {
         flag = false;
         mapData.v = '> ' + mapData.v;
       }
+  
+      // 解析 ID
       const regexResult = /^.+ \^([a-z0-9\-]+)$/gim.exec(mapData.v);
       const id = regexResult != null ? regexResult[1] : null
-
-     // console.log(id);
-
+  
+      // 解析日期
+      // 功能: 解析单独一行的日期或以空格分隔的日期部分，提取开始和结束日期
+      const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)(?:-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?))?(?:\s|$)/;
+      const dateMatch = dateRegex.exec(mapData.v);
+      const startDate = dateMatch ? dateMatch[1] : null;
+      const endDate = dateMatch && dateMatch[2] ? dateMatch[2] : null;
+  
       var map: INodeData = {
         id: id || uuid(),
-        text: id ? mapData.v.replace(` ^${id}`, '') : mapData.v,
+        text: mapData.v,
+        startDate: startDate, // 添加开始日期字段
+        endDate: endDate, // 添加结束日期字段
         children: []
       };
-
+  
       if (flag && mapData.c && mapData.c.length) {
         mapData.c.forEach((data: any) => {
           map.children.push(transformData(data));
         });
       }
-
+  
       return map;
     }
-
+  
     if (str) {
       const { root } = transformer.transform(str);
       const data = transformData(root);
       return data;
-
+  
     } else {
       return {
         id: uuid(),
@@ -370,6 +379,8 @@ export class MindMapView extends TextFileView implements HoverParent {
       }
     }
   }
+  
+  
 
 
   onMoreOptionsMenu(menu: Menu) {
@@ -383,6 +394,15 @@ export class MindMapView extends TextFileView implements HoverParent {
             this.plugin.mindmapFileModes[this.id || this.file.path] = "markdown";
             this.plugin.setMarkdownView(this.leaf);
           });
+      });
+    // 添加设置日期的菜单项
+    menu.addItem((item) => {
+          item.setTitle('设置日期')
+              .setIcon('calendar')
+              .onClick(() => {
+                  // 显示日期选择器并处理日期选择
+                  this.showDatePicker();
+              });
       });
 
     // .addItem((item)=>{
@@ -403,16 +423,21 @@ export class MindMapView extends TextFileView implements HoverParent {
 
     super.onMoreOptionsMenu(menu);
   }
+  
+  showDatePicker() {
+    // 显示日期选择器的逻辑
+    // 选择日期后，将日期添加到Markdown文本中
+  }
 
-    // 获取脑图的根节点
-      getRootNode(): INodeData {
-        // 你的逻辑实现，返回根节点
-        // 例如：
-        if (this.mindmap) {
-          //@ts-ignore
-            return this.mindmap.root ;
-        }
-        return null;
+// 获取脑图的根节点
+  getRootNode(): INodeData {
+    // 你的逻辑实现，返回根节点
+    // 例如：
+    if (this.mindmap) {
+      //@ts-ignore
+        return this.mindmap.root ;
     }
+    return null;
+  }
 
 }

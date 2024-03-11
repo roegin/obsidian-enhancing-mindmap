@@ -306,6 +306,22 @@ export default {
         }
         return 28;
     },
+    parseExtended  (date_str) {
+        const regex = /^(\d{4})-(\d{2})-(\d{2})(?:-(\d{2}):(\d{2}))?$/;
+        const match = date_str.match(regex);
+    
+        if (match) {
+            // 构建符合 date_utils.parse 期望的格式
+            const formattedDate = match[1] + '-' + match[2] + '-' + match[3] +
+                                  (match[4] ? ' ' + match[4] : '') + 
+                                  (match[5] ? ':' + match[5] : '');
+    
+            return this.parse(formattedDate);
+        } else {
+            // 如果不符合上述格式，回退到原有的解析逻辑
+            return this.parse(date_str);
+        }
+    }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart

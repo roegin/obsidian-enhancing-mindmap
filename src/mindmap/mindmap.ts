@@ -134,13 +134,56 @@ export default class MindMap {
 
     setMenuIcon(){
         var addNodeDom = document.createElement('span');
+        var setDateDom = document.createElement('span'); // 创建设置日期的元素
         var deleteNodeDom = document.createElement('span');
+
+
         addNodeDom.classList.add('mm-icon-add-node'); 
+        setDateDom.classList.add('mm-icon-set-date'); // 使用合适的类名
         deleteNodeDom.classList.add('mm-icon-delete-node');
         addNodeDom.innerHTML = addIcon;
+        setDateDom.innerHTML = '📅'; // 使用日历 emoji 作为图标
         deleteNodeDom.innerHTML = deleteIcon;
         this._menuDom.appendChild(addNodeDom);
-        this._menuDom.appendChild(deleteNodeDom);
+                // 将新菜单项附加到菜单DOM中
+        this._menuDom.appendChild(setDateDom);
+        //this._menuDom.appendChild(deleteNodeDom);
+
+          // 为新的菜单项设置样式和内容
+
+
+        // 创建日期选择弹出窗口
+        var datePopup = document.createElement('div');
+        datePopup.classList.add('date-popup'); // 添加适当的类名
+        datePopup.style.display = 'none'; // 初始时隐藏弹出窗口
+
+        // 创建开始日期输入框
+        var startDateInput = document.createElement('input');
+        startDateInput.type = 'datetime-local';
+        startDateInput.classList.add('start-date');
+
+        // 创建结束日期输入框
+        var endDateInput = document.createElement('input');
+        endDateInput.type = 'datetime-local';
+        endDateInput.classList.add('end-date');
+
+        // 将输入框添加到弹出窗口
+        datePopup.appendChild(startDateInput);
+        datePopup.appendChild(endDateInput);
+
+        // 在文档中插入弹出窗口（选择合适的位置）
+        document.body.appendChild(datePopup);
+
+        // 为设置日期按钮添加事件监听器
+        setDateDom.addEventListener('click', (event) => {
+            // 显示日期选择弹出窗口
+            datePopup.style.display = 'block';
+            // 定位弹出窗口
+            datePopup.style.left = `${event.pageX}px`;
+            datePopup.style.top = `${event.pageY}px`;
+        });
+
+
     }
 
     setAppSetting() {
