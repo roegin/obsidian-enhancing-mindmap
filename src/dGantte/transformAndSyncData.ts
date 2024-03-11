@@ -12,6 +12,7 @@ interface GanttTask {
    // duration: number;
     progress: number;
     parent: string;
+    dependencies?:string;
     custom_class?:string;
 }
 
@@ -28,6 +29,7 @@ export function transformAndSyncData(mindMapRoot: MindMapNode[]): GanttTask[] {
        // duration: 1,
         progress: 20,
         parent: parentId || '',
+        dependencies:parentId || '',
         //custom_class: 'bar-milestone' // optional
       };
 

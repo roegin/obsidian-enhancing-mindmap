@@ -4,7 +4,7 @@ import { MindMapView } from "src/MindMapView";
 import { INodeData } from "src/mindmap/INode";
 // 功能: 引入 frappe-gantt 库
 //@ts-ignore
-import Gantt from 'frappe-gantt';
+import Gantt from '../frappe/index';
 
 
 
