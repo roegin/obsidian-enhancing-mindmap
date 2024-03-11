@@ -784,10 +784,13 @@ export default class Gantt {
 
     // 功能: 根据任务名称中的标签文本调整任务条底色和进度条颜色
     make_bars() {
+        //https://chat.openai.com/c/f119318d-66e9-4e12-a6a8-3ac9deb71902
         const frappeTagConfig = {
             '#目标': { base: '#a3a3ff', progress: '#8383ff' }, // 浅蓝色及其变体
             '#完成': { base: '#90ee90', progress: '#76de76' },  // 浅绿色及其变体
-            '#目标/完成': { base: '#90ee90', progress: '#76de76' }  // 浅绿色及其变体
+            '#目标/完成': { base: '#90ee90', progress: '#76de76' } , // 浅绿色及其变体,
+            '#目标/进行中': { base: '#ffd700', progress: '#ffc700' } // 金色及其变体
+
         };
 
         this.bars = this.tasks.map((task) => {

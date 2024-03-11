@@ -445,6 +445,16 @@ export class MindMapView extends TextFileView implements HoverParent {
               });
       });
 
+      // 添加打开甘特图的菜单项
+    menu.addItem((item) => {
+      item.setTitle('打开甘特图')  // 设置菜单项标题
+          .setIcon('line-chart')  // 设置图标，此处假设有个类似甘特图的图标
+          .onClick(() => {
+              // 调用打开甘特图的方法
+              this.openGanttChart();
+          });
+    });
+
     // .addItem((item)=>{
     //    item
     //    .setTitle(`${t("Export to opml")}`)
@@ -463,6 +473,27 @@ export class MindMapView extends TextFileView implements HoverParent {
 
     super.onMoreOptionsMenu(menu);
   }
+
+  // 在MindMapView类中实现打开甘特图的方法
+  async openGanttChart() {
+    // 检查当前是否已有一个甘特图视图激活，如果有，则直接切换到该视图
+    const existingGanttChartView = this.app.workspace.getLeavesOfType('gantt-chart-view')[0];
+    if (existingGanttChartView) {
+      this.app.workspace.setActiveLeaf(existingGanttChartView);
+    } else {
+      // 创建一个新的甘特图视图
+      let activeLeaf = this.app.workspace.activeLeaf;
+      if (activeLeaf) {
+        console.log('打开脑图连接甘特图')
+          // Create a new leaf by splitting the active leaf horizontally
+          const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
+          await newLeaf.setViewState({
+              type: "gantt-chart-view",
+          });
+      }
+    }
+  }
+
   
   showDatePicker() {
     // 显示日期选择器的逻辑
