@@ -2,6 +2,8 @@ import typescript from '@rollup/plugin-typescript';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import css from 'rollup-plugin-css-only';
+// rollup.config.js
+import scss from 'rollup-plugin-scss';
 
 const isProd = (process.env.BUILD === 'production');
 
@@ -33,6 +35,10 @@ export default {
     }),
     nodeResolve({browser: true}),
     commonjs(),
-    css({ output: 'bundle.css' })
+    css({ output: 'bundle.css' }),
+    scss({
+      // 你可以在这里设置插件的选项
+      output: 'bundle.css',
+    }),
   ]
 };

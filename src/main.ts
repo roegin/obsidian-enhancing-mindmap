@@ -123,6 +123,7 @@ export default class MindMapPlugin extends Plugin {
         callback: async () => {
             let activeLeaf = this.app.workspace.activeLeaf;
             if (activeLeaf) {
+              console.log('打开脑图连接甘特图')
                 // Create a new leaf by splitting the active leaf horizontally
                 const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
                 await newLeaf.setViewState({

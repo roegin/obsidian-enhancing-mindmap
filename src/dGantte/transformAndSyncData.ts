@@ -6,12 +6,13 @@ interface MindMapNode {
 
 interface GanttTask {
     id: string;
-    text: string;
-    start_date: string;
-    end_date: string;
-    duration: number;
+    name: string;
+    start: string;
+    end: string;
+   // duration: number;
     progress: number;
     parent: string;
+    custom_class?:string;
 }
 
 export function transformAndSyncData(mindMapRoot: MindMapNode[]): GanttTask[] {
@@ -21,12 +22,13 @@ export function transformAndSyncData(mindMapRoot: MindMapNode[]): GanttTask[] {
     function traverseMindMapNode(node: MindMapNode, parentId: string | null) {
       const ganttTask: GanttTask = {
         id: node.id,
-        text: node.text,
-        start_date: "2024-03-10 11:00",  // 示例起始日期
-        end_date: "2024-03-15 11:00",    // 示例结束日期
-        duration: 1,
-        progress: 0,
-        parent: parentId || ''
+        name: node.text,
+        start: "2024-03-10",  // 示例起始日期
+        end: "2024-03-15",    // 示例结束日期
+       // duration: 1,
+        progress: 20,
+        parent: parentId || '',
+        //custom_class: 'bar-milestone' // optional
       };
 
       //console.log('ganttTask',ganttTask)

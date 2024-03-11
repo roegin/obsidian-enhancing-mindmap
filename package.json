@@ -22,11 +22,14 @@
     "randomcolor": "^0.6.2",
     "rollup": "^2.32.1",
     "rollup-plugin-css-only": "^4.5.2",
+    "rollup-plugin-scss": "^4.0.0",
+    "sass": "^1.71.1",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
   },
   "dependencies": {
     "dom-to-image": "^2.6.0",
+    "frappe-gantt": "^0.6.1",
     "katex": "^0.13.11",
     "randomcolor": "^0.6.2",
     "svg.js": "^2.7.1"

@@ -7,9 +7,9 @@
 	"author": "Mark",
 	"authorUrl": "https://github.com/MarkMindCkm/obsidian-enhancing-mindmap",
 	"isDesktopOnly": false,
+    "css": ["styles.css", "node_modules/frappe-gantt/dist/frappe-gantt.css"]
 	
-		"js": ["main.js", "src/dhtml/dhtmlxgantt.js"],
-		"css": ["styles.css", "src/dhtml/dhtmlxgantt.css"]
+	
 	
 	
 }
