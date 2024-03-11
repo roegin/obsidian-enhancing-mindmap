@@ -782,6 +782,32 @@ export default class Gantt {
         };
     }
 
+    // 功能: 根据任务名称中的标签文本调整任务条底色和进度条颜色
+    make_bars() {
+        const frappeTagConfig = {
+            '#目标': { base: '#a3a3ff', progress: '#8383ff' }, // 浅蓝色及其变体
+            '#完成': { base: '#90ee90', progress: '#76de76' },  // 浅绿色及其变体
+            '#目标/完成': { base: '#90ee90', progress: '#76de76' }  // 浅绿色及其变体
+        };
+
+        this.bars = this.tasks.map((task) => {
+            const bar = new Bar(this, task);
+
+            // 检查任务名称中的标签文本并调整颜色
+            Object.keys(frappeTagConfig).forEach(tag => {
+                if (task.name.includes(tag)) {
+                    bar.$bar.style.fill = frappeTagConfig[tag].base;          // 调整底色
+                    bar.$bar_progress.style.fill = frappeTagConfig[tag].progress;  // 调整进度条颜色
+                }
+            });
+
+            this.layers.bar.appendChild(bar.group);
+            return bar;
+        });
+    }
+
+
+    /*!SECTION
     make_bars() {
         this.bars = this.tasks.map((task) => {
             const bar = new Bar(this, task);
@@ -789,6 +815,9 @@ export default class Gantt {
             return bar;
         });
     }
+    */
+
+
 
     make_arrows() {
         this.arrows = [];
