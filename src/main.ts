@@ -143,6 +143,7 @@ export default class MindMapPlugin extends Plugin {
   onunload() {
    
     this.app.workspace.detachLeavesOfType(mindmapViewType);
+    
     //this.app.workspace.unregisterHoverLinkSource(frontMatterKey);
 
   }

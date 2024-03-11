@@ -136,7 +136,7 @@ export class GanttChartView extends ItemView {
   
     getMindMapData(): INodeData[] {
         const mindMapView = this.getMindMapView();
-        //console.log('mindMapView',mindMapView)
+        console.log('mindMapView',mindMapView)
         if (!mindMapView) {
             return [];
         }
@@ -160,5 +160,58 @@ export class GanttChartView extends ItemView {
 
         console.log('result',result)
         return result;
+    }
+
+      // 功能: 在甘特图视图中更新甘特图
+    updateGanttChart() {
+        /*
+        const container = this.containerEl.children[1];
+        container.empty();
+    
+
+        //this.loadCSS(); // 加载 CSS
+    
+        // 创建 SVG 元素
+        const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svgElement.id = 'gantt-svg';
+        container.appendChild(svgElement);
+        // 使用新数据重新渲染甘特图
+        */
+        // 获取思维导图数据
+        const mindMapData = this.getMindMapData(); 
+        if (mindMapData.length > 0) {
+            // 转换数据为甘特图格式
+            const ganttData = transformAndSyncData(mindMapData); 
+            console.log('ganttData2', ganttData);
+
+            var tasks = [
+                {
+                    id: 'Task 1',
+                    name: 'Redesign website',
+                    start: '2016-12-28',
+                    end: '2016-12-31',
+                    progress: 20,
+                    dependencies: 'Task 2, Task 3'
+                },
+                
+                ]
+           // console.log('gantt-change',Gantt)
+    
+            // 初始化并渲染甘特图
+            this.gantt = new Gantt('#gantt-svg', ganttData, {
+                header_height: 50,
+                column_width: 30,
+                step: 24,
+                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                bar_height: 20,
+                bar_corner_radius: 3,
+                arrow_curve: 5,
+                padding: 18,
+                view_mode: 'Day',
+                date_format: 'YYYY-MM-DD-HH:mm',
+                language: 'en',
+                custom_popup_html: null
+            });
+        }
     }
   }

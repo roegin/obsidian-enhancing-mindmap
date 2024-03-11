@@ -471,6 +471,7 @@ export default class Gantt {
         this.set_scroll_position();
 
         //测试矩形
+        /*
         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         rect.setAttribute("x", 20);
         rect.setAttribute("y", 20);
@@ -478,6 +479,7 @@ export default class Gantt {
         rect.setAttribute("height", 100);
         rect.setAttribute("fill", "red");
         this.$svg.appendChild(rect);
+        */
 
         // 检查渲染后的 SVG 元素样式
         console.log("Gantt SVG classList:", this.$svg.classList);

@@ -18,6 +18,8 @@ import randomColor from "randomcolor";
 import { t } from './lang/helpers'
 
 import domtoimage from './domtoimage.js'
+import { GanttChartView } from './dGantte/GanttChartView';
+import Gantt from './frappe/index';
 
 export function uuid(): string {
   function S4() {
@@ -40,6 +42,7 @@ export class MindMapView extends TextFileView implements HoverParent {
   timeOut: any = null;
   fileCache: any;
   firstInit: boolean = true;
+  gantt: any;
 
   getViewType() {
     return mindmapViewType;
@@ -146,8 +149,12 @@ export class MindMapView extends TextFileView implements HoverParent {
   }
 
   mindMapChange() {
+    console.log('mindMapChange')
     if (this.mindmap) {
       var md = this.mindmap.getMarkdown();
+      //功能: 刷新数据
+      this.mindmap.data = this.mdToData(md);
+
       var matchArray: string[] = []
       var collapsedIds: string[] = []
       const idRegexMultiline = /.+ \^([a-z0-9\-]+)$/gim
@@ -169,7 +176,40 @@ export class MindMapView extends TextFileView implements HoverParent {
         console.log(err);
         new Notice(`${t("Save fail")}`)
       }
+      console.log('this.mindmapdata',this.mindmap.data)
+
+      // 转换脑图数据为甘特图格式
+      //const ganttData = transformAndSyncData(this.mindmap.getMarkdown());
+
+      // 获取甘特图视图实例并更新数据
+      const ganttView = this.getGanttChartView();
+      console.log('mindmap-ganttview',ganttView)
+      if (ganttView) {
+          ganttView.updateGanttChart();
+      }
     }
+  }
+
+  // 功能: 获取甘特图视图实例
+  // 功能: 获取甘特图视图实例
+  getGanttChartView() {
+    // 获取所有打开的视图（leaves）
+    const leaves = this.app.workspace.getLeavesOfType("gantt-chart-view");
+    
+    // 遍历并找到第一个甘特图视图实例
+    for (const leaf of leaves) {
+        if (leaf.view instanceof GanttChartView) {
+            return leaf.view;
+        }
+    }
+    return null;
+  }
+
+
+  // 功能: 在甘特图视图中更新甘特图
+  updateGanttChart(data:any) {
+    // 使用新数据重新渲染甘特图
+    this.gantt = new Gantt('#gantt-svg', data);
   }
 
   getFrontMatter() {
