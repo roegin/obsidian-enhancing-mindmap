@@ -40,7 +40,7 @@ export function transformAndSyncData(mindMapNodes: MindMapNode[]): GanttTask[] {
 
   // 功能: 递归遍历思维导图节点
   function traverseMindMapNode(node: MindMapNode, closestTargetAncestorId: string | null) {
-    if (node.text.includes("#目标")) { // 只处理包含特定标签的节点
+    if (node.text.includes("#目标") &&( node.startDate || node.endDate)){ // 只处理包含特定标签的节点
         const newId = node.id; // 使用现有的ID
         nodeIdMap.set(node.id, newId); // 存储映射
 
