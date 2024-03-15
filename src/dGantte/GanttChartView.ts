@@ -2,6 +2,7 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 import { transformAndSyncData } from "./transformAndSyncData";
 import { MindMapView } from "src/MindMapView";
 import { INodeData } from "src/mindmap/INode";
+import { getAPI, SListItem } from "obsidian-dataview";
 // 功能: 引入 frappe-gantt 库
 //@ts-ignore
 import Gantt from '../frappe/index';
@@ -88,6 +89,7 @@ export class GanttChartView extends ItemView {
         container.appendChild(svgElement);
     
         // 获取思维导图数据
+        /*
         const mindMapData = this.getMindMapData(); 
         if (mindMapData.length > 0) {
             // 转换数据为甘特图格式
@@ -123,6 +125,8 @@ export class GanttChartView extends ItemView {
                 custom_popup_html: null
             });
         }
+        */
+        this.updateGanttChart()
         
     }
     
@@ -158,12 +162,70 @@ export class GanttChartView extends ItemView {
             });
         }
 
-        console.log('result',result)
+        //console.log('result',result)
         return result;
     }
 
       // 功能: 在甘特图视图中更新甘特图
     updateGanttChart() {
+        // 功能: 使用 Dataview API 获取包含 "#目标" 标签的列表项
+        async function getTargetListItems(app: any): Promise<any[]> {
+            if (!app.plugins.enabledPlugins.has('dataview')) {
+                console.error('Dataview plugin is not enabled.');
+                return [];
+            }
+        
+            const dataview = app.plugins.plugins.dataview.api;
+            let targetListItems: any[] = [];
+            // 匹配单日或格式为 "YYYY-MM-DD-YYYY-MM-DD" 但日期相同的列表项
+            const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-\1)?(?:\s|$)/;
+        
+            try {
+                const pages = dataview.pages();
+                for (let page of pages) {
+                    if (!page.file || !page.file.lists) continue;
+                    const lists = page.file.lists;
+                    const filteredLists = lists.filter(list =>
+                        list.text.includes("#目标") && dateRegex.test(list.text)
+                    ).map(list => {
+                        // 提取文件名，去掉扩展名
+                        const filename = list.path.split('/').pop().split('.').shift();
+                        return {
+                            ...list,
+                            filename: filename
+                        };
+                    });
+                    targetListItems.push(...filteredLists);
+                }
+            } catch (e) {
+                console.error('Error accessing Dataview API:', e);
+            }
+        
+            return targetListItems;
+        }
+
+        /*!SECTION
+        函数 `getTargetListItems` 返回一个数组，其中每个元素是一个对象，描述了一个特定的列表项。以下是返回对象的结构说明：
+
+            - `filename`: 字符串，表示列表项所在 Markdown 文件的名称（不包含扩展名）。
+            - `path`: 字符串，表示列表项所在 Markdown 文件的完整路径。
+            - `text`: 字符串，包含列表项的完整文本，可能包括特定标签和日期。
+            - `line`: 数字，表示列表项在其所在文件中的行号。
+            - `tags`: 数组，包含字符串类型的元素，每个元素是列表项中的一个标签。
+            - `position`: 对象，包含有关列表项在文件中位置的信息。
+            - `link`, `header`, `section`: 对象，提供列表项链接和上下文的详细信息。
+
+        这些属性使得每个返回的列表项对象能够提供丰富的上下文信息，如所在文件的名称、位置和包含的标签等。
+        */
+        
+        // 调用函数
+        getTargetListItems(this.app).then(result => console.log('result-1', result));
+        
+        
+        
+        
+  
+        
         /*
         const container = this.containerEl.children[1];
         container.empty();
