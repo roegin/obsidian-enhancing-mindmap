@@ -25,6 +25,7 @@ export default class MindMapPlugin extends Plugin {
   mindmapFileModes: { [file: string]: string } = {};
   _loaded: boolean = false;
   timeOut: any = null;
+  mindmap: any;
 
   async onload() {
 
@@ -51,7 +52,7 @@ export default class MindMapPlugin extends Plugin {
       }
     });
     
-     this.addCommand({
+    this.addCommand({
       id: 'Toggle to markdown or mindmap',
       name: `${t('Toggle mardkown/mindmap')}`,
       mobileOnly: false,
@@ -66,50 +67,50 @@ export default class MindMapPlugin extends Plugin {
             this.setMarkdownView(markdownView.leaf);
           }
       }
-  });
+    });
 
-  this.addCommand({
-    id: 'Copy Node',
-    name: `${t('Copy node')}`,
-    callback: () => {
-      const mindmapView = this.app.workspace.getActiveViewOfType(MindMapView);
-      if(mindmapView){
-           var mindmap = mindmapView.mindmap;
-           navigator.clipboard.writeText('');
-           var node = mindmap.selectNode;
-           if(node){
-             var text = mindmap.copyNode(node);
-             navigator.clipboard.writeText(text);
-           }
+    this.addCommand({
+      id: 'Copy Node',
+      name: `${t('Copy node')}`,
+      callback: () => {
+        const mindmapView = this.app.workspace.getActiveViewOfType(MindMapView);
+        if(mindmapView){
+            var mindmap = mindmapView.mindmap;
+            navigator.clipboard.writeText('');
+            var node = mindmap.selectNode;
+            if(node){
+              var text = mindmap.copyNode(node);
+              navigator.clipboard.writeText(text);
+            }
+        }
+      
       }
-     
-    }
-  });
+    });
 
-  this.addCommand({
-    id: 'Paste Node',
-    name: `${t('Paste node')}`,
-    callback: () => {
-       const mindmapView = this.app.workspace.getActiveViewOfType(MindMapView);
-       if(mindmapView){
-        var mindmap = mindmapView.mindmap;
-          navigator.clipboard.readText().then(text=>{
-              mindmap.pasteNode(text);
-          });
-       }
-    }
-  });
+    this.addCommand({
+      id: 'Paste Node',
+      name: `${t('Paste node')}`,
+      callback: () => {
+        const mindmapView = this.app.workspace.getActiveViewOfType(MindMapView);
+        if(mindmapView){
+          var mindmap = mindmapView.mindmap;
+            navigator.clipboard.readText().then(text=>{
+                mindmap.pasteNode(text);
+            });
+        }
+      }
+    });
 
-  this.addCommand({
-    id: 'Export to html',
-    name: `${t('Export to html')}`,
-    callback: () => {
-       const mindmapView = this.app.workspace.getActiveViewOfType(MindMapView);
-       if(mindmapView){
-           mindmapView.exportToSvg();
-       }
-    }
-  });
+    this.addCommand({
+      id: 'Export to html',
+      name: `${t('Export to html')}`,
+      callback: () => {
+        const mindmapView = this.app.workspace.getActiveViewOfType(MindMapView);
+        if(mindmapView){
+            mindmapView.exportToSvg();
+        }
+      }
+    });
 
 
     this.registerView(mindmapViewType, (leaf) => new MindMapView(leaf, this));
@@ -139,6 +140,30 @@ export default class MindMapPlugin extends Plugin {
 
     this.addSettingTab(new MindMapSettingsTab(this.app, this));
 
+
+    //增加md变更触发更新
+        // 设置文件修改监听器
+
+
+  }
+
+  getMindMapView(): MindMapView {
+      // 此处的 `this.app` 应指向 Obsidian 应用程序实例
+      // 可能需要通过插件实例或其他方式访问它
+      return this.app.workspace.getActiveViewOfType(MindMapView);
+  }
+  // 功能: 获取甘特图视图实例
+  getGanttChartView() {
+    // 获取所有打开的视图（leaves）
+    const leaves = this.app.workspace.getLeavesOfType("gantt-chart-view");
+    
+    // 遍历并找到第一个甘特图视图实例
+    for (const leaf of leaves) {
+        if (leaf.view instanceof GanttChartView) {
+            return leaf.view;
+        }
+    }
+    return null;
   }
 
   onunload() {

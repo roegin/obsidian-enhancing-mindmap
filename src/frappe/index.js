@@ -193,7 +193,9 @@ const VIEW_MODE = {
 
 export default class Gantt {
     constructor(wrapper, tasks, options) {
-        console.log("Gantt constructor called");
+        console.log("Gantt constructor called-tasks",tasks);
+
+        //this.singleDayTasks = singleDayTasks; // 存储单日任务
 
         // 检查 CSS 是否已加载
         const isGanttCssLoaded = document.querySelector('link[href*="frappe-gantt.css"]');
@@ -469,6 +471,8 @@ export default class Gantt {
         this.map_arrows_on_bars();
         this.set_width();
         this.set_scroll_position();
+        //this.make_single_day_tasks(); // 在适当的位置调用
+    
 
         //测试矩形
         /*
@@ -493,6 +497,74 @@ export default class Gantt {
             console.log("First bar element attributes:", barElements[0].getBoundingClientRect());
         }
     }
+
+    make_single_day_tasks() {
+        const singleDayTaskLayer = createSVG('g', { class: 'single-day-tasks', append_to: this.$svg });
+        console.log('单日任务', this.singleDayTasks);
+        let currentY = 10; // 初始Y坐标
+        this.singleDayTasks.forEach(task => {
+            const x = this.compute_x(task.start); // 计算X坐标
+            const width = this.options.column_width; // 使用与普通任务相同的宽度
+    
+            createSVG('rect', {
+                x,
+                y: currentY, // 使用计算出的Y坐标
+                width,
+                height: this.options.bar_height,
+                fill: '#f0f0f0', // 示例填充色
+                append_to: singleDayTaskLayer,
+            });
+    
+            currentY += this.options.bar_height + 5; // 更新Y坐标，为下一个任务留出空间
+            // 可以在这里添加文本或其他元素...
+        });
+    }
+    
+
+    compute_x(task_start) {
+        const gantt_start = this.gantt_start; // 甘特图的开始时间
+        let x = 0;
+    
+        // 计算任务开始时间与甘特图开始时间之间的差异（以小时为单位）
+        const taskStartDate = date_utils.parseExtended(task_start);
+        const hours_diff = date_utils.diff(taskStartDate, gantt_start, 'hour');
+        
+        console.log('this.options.view_mode',this.options.view_mode)
+    
+        switch (this.options.view_mode) {
+            case VIEW_MODE.DAY:
+                x = (hours_diff / 24) * this.options.column_width;
+                console.log('days_diff',this.options.column_width,x)
+                break;
+            
+            case VIEW_MODE.HALF_DAY:
+                x = (hours_diff / 12) * this.options.column_width;
+                break;
+                
+            case VIEW_MODE.QUARTER_DAY:
+                // 对于“天”视图模式，直接将时间差转换为像素值
+                x = (hours_diff / this.options.step) * this.options.column_width;
+                break;
+            case VIEW_MODE.WEEK:
+                // 对于“周”视图模式，计算属于哪一周，然后乘以列宽
+                const days_diff = date_utils.diff(task_start, gantt_start, 'day');
+
+                x = Math.floor(days_diff / 7) * this.options.column_width;
+                break;
+            case VIEW_MODE.MONTH:
+                // 对于“月”视图模式，计算属于哪个月份，然后乘以列宽
+                const months_diff = date_utils.diff(task_start, gantt_start, 'month');
+                x = months_diff * this.options.column_width;
+                break;
+            default:
+                console.error('Unsupported view mode:', this.options.view_mode);
+        }
+
+        console.log('compute_x',task_start,x)
+    
+        return x;
+    }
+    
 
     setup_layers() {
         this.layers = {};

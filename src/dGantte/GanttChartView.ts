@@ -6,7 +6,8 @@ import { getAPI, SListItem } from "obsidian-dataview";
 // 功能: 引入 frappe-gantt 库
 //@ts-ignore
 import Gantt from '../frappe/index';
-
+//@ts-ignore
+import GanttSingleDay from './../frappeSingleDay/index';
 
 
 interface MindMapNode {
@@ -17,6 +18,7 @@ interface MindMapNode {
 //
 export class GanttChartView extends ItemView {
     gantt: any; // 保存 Gantt 实例的属性
+    ganttSingleDay: any;
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
         /*
@@ -34,7 +36,7 @@ export class GanttChartView extends ItemView {
         return "gantt-chart-view";
     }
   
-    getDisplayText() {
+    getDisplayText() { //
         return "Gantt Chart";
     }
 
@@ -83,7 +85,12 @@ export class GanttChartView extends ItemView {
 
         //this.loadCSS(); // 加载 CSS
     
-        // 创建 SVG 元素
+        // 创建单日甘特图的SVG元素
+        const svgElementSingleDay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svgElementSingleDay.id = 'gantt-svg-single-day';
+        container.appendChild(svgElementSingleDay);
+
+        // 创建普通甘特图的SVG元素
         const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svgElement.id = 'gantt-svg';
         container.appendChild(svgElement);
@@ -167,59 +174,181 @@ export class GanttChartView extends ItemView {
     }
 
       // 功能: 在甘特图视图中更新甘特图
-    updateGanttChart() {
-        // 功能: 使用 Dataview API 获取包含 "#目标" 标签的列表项
-        async function getTargetListItems(app: any): Promise<any[]> {
-            if (!app.plugins.enabledPlugins.has('dataview')) {
-                console.error('Dataview plugin is not enabled.');
-                return [];
-            }
-        
-            const dataview = app.plugins.plugins.dataview.api;
-            let targetListItems: any[] = [];
-            // 匹配单日或格式为 "YYYY-MM-DD-YYYY-MM-DD" 但日期相同的列表项
-            const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-\1)?(?:\s|$)/;
-        
-            try {
-                const pages = dataview.pages();
-                for (let page of pages) {
-                    if (!page.file || !page.file.lists) continue;
-                    const lists = page.file.lists;
-                    const filteredLists = lists.filter(list =>
-                        list.text.includes("#目标") && dateRegex.test(list.text)
-                    ).map(list => {
-                        // 提取文件名，去掉扩展名
-                        const filename = list.path.split('/').pop().split('.').shift();
-                        return {
-                            ...list,
-                            filename: filename
-                        };
-                    });
-                    targetListItems.push(...filteredLists);
+    async updateGanttChart() {
+        let ifSingle = this.ganttSingleDay 
+
+        if(ifSingle){
+
+            setTimeout(async () => {
+                // 功能: 使用 Dataview API 获取包含 "#目标" 标签的列表项
+                async function getTargetListItems(app: any): Promise<any[]> {
+                    if (!app.plugins.enabledPlugins.has('dataview')) {
+                        console.error('Dataview plugin is not enabled.');
+                        return [];
+                    }
+                
+                    const dataview = app.plugins.plugins.dataview.api;
+                    let targetListItems: any[] = [];
+                    // 匹配单日或格式为 "YYYY-MM-DD-YYYY-MM-DD" 但日期相同的列表项
+                    const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-\1)?(?:\s|$)/;
+                
+                    try {
+                        const pages = dataview.pages();
+                        for (let page of pages) {
+                            if (!page.file || !page.file.lists) continue;
+                            const lists = page.file.lists;
+                            const filteredLists = lists.filter(list =>
+                                list.text.includes("#目标") && dateRegex.test(list.text)
+                            ).map(list => {
+                                // 提取文件名，去掉扩展名
+                                const filename = list.path.split('/').pop().split('.').shift();
+                                return {
+                                    ...list,
+                                    filename: filename
+                                };
+                            });
+                            targetListItems.push(...filteredLists);
+                        }
+                    } catch (e) {
+                        console.error('Error accessing Dataview API:', e);
+                    }
+                
+                    return targetListItems;
                 }
-            } catch (e) {
-                console.error('Error accessing Dataview API:', e);
+
+                /*!get方法介绍
+                函数 `getTargetListItems` 返回一个数组，其中每个元素是一个对象，描述了一个特定的列表项。以下是返回对象的结构说明：
+
+                    - `filename`: 字符串，表示列表项所在 Markdown 文件的名称（不包含扩展名）。
+                    - `path`: 字符串，表示列表项所在 Markdown 文件的完整路径。
+                    - `text`: 字符串，包含列表项的完整文本，可能包括特定标签和日期。
+                    - `line`: 数字，表示列表项在其所在文件中的行号。
+                    - `tags`: 数组，包含字符串类型的元素，每个元素是列表项中的一个标签。
+                    - `position`: 对象，包含有关列表项在文件中位置的信息。
+                    - `link`, `header`, `section`: 对象，提供列表项链接和上下文的详细信息。
+
+                这些属性使得每个返回的列表项对象能够提供丰富的上下文信息，如所在文件的名称、位置和包含的标签等。
+                */
+                
+                // 调用函数
+                const singleDayTasks=await getTargetListItems(this.app)
+
+                async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {
+                    const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-(\d{4}-\d{2}-\d{2}))?(?:\s|$)/;
+                
+                    return listItems.map(item => {
+                        const dateMatch = dateRegex.exec(item.text);
+                        const name=item.text
+                        const start = dateMatch ? dateMatch[1] : null;
+                        const end = dateMatch && dateMatch[2] ? dateMatch[2] : start; // 如果没有结束日期，使用开始日期
+                        return { ...item, start, end ,name};
+                    });
+                }
+
+                const tasksWithDateInfo = await addDateInfoToListItems(singleDayTasks);
+                console.log('tasksWithDateInfo',tasksWithDateInfo)
+                
+                this.ganttSingleDay = new GanttSingleDay('#gantt-svg-single-day', tasksWithDateInfo, {
+                    header_height: 50,
+                    column_width: 30,
+                    step: 24,
+                    view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                    bar_height: 20,
+                    bar_corner_radius: 3,
+                    arrow_curve: 5,
+                    padding: 18,
+                    view_mode: 'Day',
+                    date_format: 'YYYY-MM-DD-HH:mm',
+                    language: 'en',
+                    custom_popup_html: null
+                });
+            }, 5000); // 设置延迟时间为1000毫秒（1秒钟）
+        }else{
+            // 功能: 使用 Dataview API 获取包含 "#目标" 标签的列表项
+            async function getTargetListItems(app: any): Promise<any[]> {
+                if (!app.plugins.enabledPlugins.has('dataview')) {
+                    console.error('Dataview plugin is not enabled.');
+                    return [];
+                }
+            
+                const dataview = app.plugins.plugins.dataview.api;
+                let targetListItems: any[] = [];
+                // 匹配单日或格式为 "YYYY-MM-DD-YYYY-MM-DD" 但日期相同的列表项
+                const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-\1)?(?:\s|$)/;
+            
+                try {
+                    const pages = dataview.pages();
+                    for (let page of pages) {
+                        if (!page.file || !page.file.lists) continue;
+                        const lists = page.file.lists;
+                        const filteredLists = lists.filter(list =>
+                            list.text.includes("#目标") && dateRegex.test(list.text)
+                        ).map(list => {
+                            // 提取文件名，去掉扩展名
+                            const filename = list.path.split('/').pop().split('.').shift();
+                            return {
+                                ...list,
+                                filename: filename
+                            };
+                        });
+                        targetListItems.push(...filteredLists);
+                    }
+                } catch (e) {
+                    console.error('Error accessing Dataview API:', e);
+                }
+            
+                return targetListItems;
             }
-        
-            return targetListItems;
+
+            /*!get方法介绍
+            函数 `getTargetListItems` 返回一个数组，其中每个元素是一个对象，描述了一个特定的列表项。以下是返回对象的结构说明：
+
+                - `filename`: 字符串，表示列表项所在 Markdown 文件的名称（不包含扩展名）。
+                - `path`: 字符串，表示列表项所在 Markdown 文件的完整路径。
+                - `text`: 字符串，包含列表项的完整文本，可能包括特定标签和日期。
+                - `line`: 数字，表示列表项在其所在文件中的行号。
+                - `tags`: 数组，包含字符串类型的元素，每个元素是列表项中的一个标签。
+                - `position`: 对象，包含有关列表项在文件中位置的信息。
+                - `link`, `header`, `section`: 对象，提供列表项链接和上下文的详细信息。
+
+            这些属性使得每个返回的列表项对象能够提供丰富的上下文信息，如所在文件的名称、位置和包含的标签等。
+            */
+            
+            // 调用函数
+            const singleDayTasks=await getTargetListItems(this.app)
+
+            async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {
+                const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-(\d{4}-\d{2}-\d{2}))?(?:\s|$)/;
+            
+                return listItems.map(item => {
+                    const dateMatch = dateRegex.exec(item.text);
+                    const name=item.text
+                    const start = dateMatch ? dateMatch[1] : null;
+                    const end = dateMatch && dateMatch[2] ? dateMatch[2] : start; // 如果没有结束日期，使用开始日期
+                    return { ...item, start, end ,name};
+                });
+            }
+
+            const tasksWithDateInfo = await addDateInfoToListItems(singleDayTasks);
+            console.log('tasksWithDateInfo',tasksWithDateInfo)
+            
+            this.ganttSingleDay = new GanttSingleDay('#gantt-svg-single-day', tasksWithDateInfo, {
+                header_height: 50,
+                column_width: 30,
+                step: 24,
+                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                bar_height: 20,
+                bar_corner_radius: 3,
+                arrow_curve: 5,
+                padding: 18,
+                view_mode: 'Day',
+                date_format: 'YYYY-MM-DD-HH:mm',
+                language: 'en',
+                custom_popup_html: null
+            });
         }
 
-        /*!SECTION
-        函数 `getTargetListItems` 返回一个数组，其中每个元素是一个对象，描述了一个特定的列表项。以下是返回对象的结构说明：
-
-            - `filename`: 字符串，表示列表项所在 Markdown 文件的名称（不包含扩展名）。
-            - `path`: 字符串，表示列表项所在 Markdown 文件的完整路径。
-            - `text`: 字符串，包含列表项的完整文本，可能包括特定标签和日期。
-            - `line`: 数字，表示列表项在其所在文件中的行号。
-            - `tags`: 数组，包含字符串类型的元素，每个元素是列表项中的一个标签。
-            - `position`: 对象，包含有关列表项在文件中位置的信息。
-            - `link`, `header`, `section`: 对象，提供列表项链接和上下文的详细信息。
-
-        这些属性使得每个返回的列表项对象能够提供丰富的上下文信息，如所在文件的名称、位置和包含的标签等。
-        */
         
-        // 调用函数
-        getTargetListItems(this.app).then(result => console.log('result-1', result));
         
         
         
@@ -260,7 +389,7 @@ export class GanttChartView extends ItemView {
            // console.log('gantt-change',Gantt)
     
             // 初始化并渲染甘特图
-            this.gantt = new Gantt('#gantt-svg', ganttData, {
+            this.gantt = new Gantt('#gantt-svg', ganttData,null, {
                 header_height: 50,
                 column_width: 30,
                 step: 24,

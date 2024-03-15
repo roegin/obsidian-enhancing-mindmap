@@ -182,11 +182,13 @@ export class MindMapView extends TextFileView implements HoverParent {
       //const ganttData = transformAndSyncData(this.mindmap.getMarkdown());
 
       // 获取甘特图视图实例并更新数据
+      
       const ganttView = this.getGanttChartView();
       console.log('mindmap-ganttview',ganttView)
       if (ganttView) {
           ganttView.updateGanttChart();
       }
+      
     }
   }
 
