@@ -247,7 +247,12 @@ export class GanttChartView extends ItemView {
 
                 const tasksWithDateInfo = await addDateInfoToListItems(singleDayTasks);
                 console.log('tasksWithDateInfo',tasksWithDateInfo)
-                
+                // 清空单日甘特图的容器
+                const singleDayContainer = document.getElementById('gantt-svg-single-day');
+                if (singleDayContainer) {
+                    singleDayContainer.innerHTML = ''; // 清空容器中的内容
+                }
+                                
                 this.ganttSingleDay = new GanttSingleDay('#gantt-svg-single-day', tasksWithDateInfo, {
                     header_height: 50,
                     column_width: 30,
@@ -389,7 +394,7 @@ export class GanttChartView extends ItemView {
            // console.log('gantt-change',Gantt)
     
             // 初始化并渲染甘特图
-            this.gantt = new Gantt('#gantt-svg', ganttData,null, {
+            this.gantt = new Gantt('#gantt-svg', ganttData, {
                 header_height: 50,
                 column_width: 30,
                 step: 24,
