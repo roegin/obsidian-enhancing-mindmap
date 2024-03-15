@@ -19,8 +19,6 @@ interface MindMapNode {
 export class GanttChartView extends ItemView {
     gantt: any; // 保存 Gantt 实例的属性
     ganttSingleDay: any;
-    ganttScrollPosition: any;
-    ganttSingleDayScrollPosition: any;
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
         /*
@@ -178,13 +176,6 @@ export class GanttChartView extends ItemView {
       // 功能: 在甘特图视图中更新甘特图
     async updateGanttChart() {
         let ifSingle = this.ganttSingleDay 
-
-        const ganttContainer = document.getElementById('gantt-svg');
-        const ganttSingleDayContainer = document.getElementById('gantt-svg-single-day');
-
-
-
-
 
         if(ifSingle){
 
@@ -412,9 +403,6 @@ export class GanttChartView extends ItemView {
                 language: 'en',
                 custom_popup_html: null
             });
-            
-                    
-
         }
     }
   }
