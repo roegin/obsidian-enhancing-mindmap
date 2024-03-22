@@ -803,7 +803,7 @@ export default class GanttHourly {
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D MMM', this.options.language)
                     : '',
-            'Half Day_upper':
+            'Half Day_upper'://
                 date.getDate() !== last_date.getDate()
                     ? date.getMonth() !== last_date.getMonth()
                         ? date_utils.format(
