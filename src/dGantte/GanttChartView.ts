@@ -3,6 +3,7 @@ import { transformAndSyncData } from "./transformAndSyncData";
 import { MindMapView } from "src/MindMapView";
 import { INodeData } from "src/mindmap/INode";
 import { getAPI, SListItem } from "obsidian-dataview";
+import moment from 'moment';
 // 功能: 引入 frappe-gantt 库
 //@ts-ignore
 import Gantt from '../frappe/index';
@@ -189,17 +190,28 @@ export class GanttChartView extends ItemView {
                 
                     const dataview = app.plugins.plugins.dataview.api;
                     let targetListItems: any[] = [];
-                    // 匹配单日或格式为 "YYYY-MM-DD-YYYY-MM-DD" 但日期相同的列表项
-                    const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-\1)?(?:\s|$)/;
+                    // 匹配有时间和无时间的日期格式
+                    const dateTimeRegex = /(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)/;
                 
                     try {
                         const pages = dataview.pages();
                         for (let page of pages) {
                             if (!page.file || !page.file.lists) continue;
                             const lists = page.file.lists;
-                            const filteredLists = lists.filter(list =>
-                                list.text.includes("#目标") && dateRegex.test(list.text)
-                            ).map(list => {
+                            const filteredLists = lists.filter(list => {
+                                const dateTimeMatch = dateTimeRegex.exec(list.text);
+                                if (dateTimeMatch) {
+                                    const startDateTimeStr = dateTimeMatch[1];
+                                    const endDateTimeStr = dateTimeMatch[2];
+                                    const format = startDateTimeStr.includes(':') ? "YYYY-MM-DD-HH:mm" : "YYYY-MM-DD";
+                                    const startDateTime = moment(startDateTimeStr, format);
+                                    const endDateTime = moment(endDateTimeStr, format);
+                                    // 检查时间差是否在24小时内
+                                    const duration = moment.duration(endDateTime.diff(startDateTime));
+                                    return list.text.includes("#目标") && duration.asHours() <= 24;
+                                }
+                                return false;
+                            }).map(list => {
                                 // 提取文件名，去掉扩展名
                                 const filename = list.path.split('/').pop().split('.').shift();
                                 return {
@@ -234,7 +246,7 @@ export class GanttChartView extends ItemView {
                 const singleDayTasks=await getTargetListItems(this.app)
 
                 async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {
-                    const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-(\d{4}-\d{2}-\d{2}))?(?:\s|$)/;
+                    const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)(?:\s|$)/;
                 
                     return listItems.map(item => {
                         const dateMatch = dateRegex.exec(item.text);
@@ -278,17 +290,28 @@ export class GanttChartView extends ItemView {
             
                 const dataview = app.plugins.plugins.dataview.api;
                 let targetListItems: any[] = [];
-                // 匹配单日或格式为 "YYYY-MM-DD-YYYY-MM-DD" 但日期相同的列表项
-                const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-\1)?(?:\s|$)/;
+                // 匹配有时间和无时间的日期格式
+                const dateTimeRegex = /(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)/;
             
                 try {
                     const pages = dataview.pages();
                     for (let page of pages) {
                         if (!page.file || !page.file.lists) continue;
                         const lists = page.file.lists;
-                        const filteredLists = lists.filter(list =>
-                            list.text.includes("#目标") && dateRegex.test(list.text)
-                        ).map(list => {
+                        const filteredLists = lists.filter(list => {
+                            const dateTimeMatch = dateTimeRegex.exec(list.text);
+                            if (dateTimeMatch) {
+                                const startDateTimeStr = dateTimeMatch[1];
+                                const endDateTimeStr = dateTimeMatch[2];
+                                const format = startDateTimeStr.includes(':') ? "YYYY-MM-DD-HH:mm" : "YYYY-MM-DD";
+                                const startDateTime = moment(startDateTimeStr, format);
+                                const endDateTime = moment(endDateTimeStr, format);
+                                // 检查时间差是否在24小时内
+                                const duration = moment.duration(endDateTime.diff(startDateTime));
+                                return list.text.includes("#目标") && duration.asHours() <= 24;
+                            }
+                            return false;
+                        }).map(list => {
                             // 提取文件名，去掉扩展名
                             const filename = list.path.split('/').pop().split('.').shift();
                             return {
@@ -302,8 +325,10 @@ export class GanttChartView extends ItemView {
                     console.error('Error accessing Dataview API:', e);
                 }
             
-                return targetListItems; //
+                return targetListItems;
             }
+            
+            
 
             /*!get方法介绍
             函数 `getTargetListItems` 返回一个数组，其中每个元素是一个对象，描述了一个特定的列表项。以下是返回对象的结构说明：
@@ -323,7 +348,7 @@ export class GanttChartView extends ItemView {
             const singleDayTasks=await getTargetListItems(this.app)
 
             async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {
-                const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2})(?:-(\d{4}-\d{2}-\d{2}))?(?:\s|$)/;
+                const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)(?:\s|$)/;
             
                 return listItems.map(item => {
                     const dateMatch = dateRegex.exec(item.text);
@@ -335,7 +360,7 @@ export class GanttChartView extends ItemView {
             }
 
             const tasksWithDateInfo = await addDateInfoToListItems(singleDayTasks);
-            console.log('tasksWithDateInfo',tasksWithDateInfo)
+            console.log('singleDayTasks',singleDayTasks)
             
             this.ganttSingleDay = new GanttSingleDay('#gantt-svg-single-day', tasksWithDateInfo, {
                 header_height: 50,
