@@ -302,7 +302,7 @@ export class GanttChartView extends ItemView {
                     console.error('Error accessing Dataview API:', e);
                 }
             
-                return targetListItems;
+                return targetListItems; //
             }
 
             /*!get方法介绍
