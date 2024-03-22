@@ -18,6 +18,7 @@ import { frontMatterKey, basicFrontmatter } from './constants';
 import { t } from './lang/helpers'
 import { transformAndSyncData } from './dGantte/transformAndSyncData';
 import { GanttChartView } from './dGantte/GanttChartView';
+import { GanttChartHourlyView } from './GantteHourly/GanttChartHourlyView';
 
 
 export default class MindMapPlugin extends Plugin {
@@ -114,10 +115,14 @@ export default class MindMapPlugin extends Plugin {
 
 
     this.registerView(mindmapViewType, (leaf) => new MindMapView(leaf, this));
+    
     this.registerEvents();
     this.registerMonkeyAround();
 
     this.registerView("gantt-chart-view", (leaf) => new GanttChartView(leaf));
+
+    this.registerView("gantt-chart-hourly-view", (leaf) => new GanttChartHourlyView(leaf));
+
 
     this.addCommand({
         id: 'open-gantt-chart-view',

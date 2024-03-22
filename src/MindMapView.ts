@@ -456,6 +456,13 @@ export class MindMapView extends TextFileView implements HoverParent {
               this.openGanttChart();
           });
     });
+    menu.addItem((item) => {
+      item.setTitle('打开小时甘特图')
+          .setIcon('line-chart') // 设置图标
+          .onClick(() => {
+              this.openGanttChartHourlyView();
+          });
+  });
 
     // .addItem((item)=>{
     //    item
@@ -495,6 +502,22 @@ export class MindMapView extends TextFileView implements HoverParent {
       }
     }
   }
+
+  async openGanttChartHourlyView() {
+    const existingView = this.app.workspace.getLeavesOfType('gantt-chart-hourly-view')[0];
+    if (existingView) {
+        this.app.workspace.setActiveLeaf(existingView);
+    } else {
+        let activeLeaf = this.app.workspace.activeLeaf;
+        if (activeLeaf) {
+            const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
+            await newLeaf.setViewState({
+                type: "gantt-chart-hourly-view",
+            });
+        }
+    }
+}
+
 
   
   showDatePicker() {

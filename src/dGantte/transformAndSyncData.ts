@@ -1,10 +1,11 @@
 interface MindMapNode {
-    id: string;
-    text: string;
-    children?: MindMapNode[];
-    startDate?:string;
-    endDate?:string;
-  }
+  id: string;                // 节点唯一标识
+  text: string;              // 节点文本内容
+  children?: MindMapNode[];  // 子节点数组
+  startDate?: string;        // 开始日期，格式: "YYYY-MM-DD" 或 "YYYY-MM-DD-HH:MM"
+  endDate?: string;          // 结束日期，格式: "YYYY-MM-DD" 或 "YYYY-MM-DD-HH:MM"
+}
+
 
 interface GanttTask {
     id: string;
