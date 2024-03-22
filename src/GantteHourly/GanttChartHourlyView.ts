@@ -6,6 +6,7 @@ import GanttHourly from './../FrappeHourly/index';
 import { INodeData } from 'src/mindmap/INode';
 import { MindMapView } from 'src/MindMapView';
 import { transformAndSyncDataAtHourly } from './transformAndSyncDataAtHourly';
+import Gantt from './../frappe/index';
 
 interface MindMapNode {
     id: string;
@@ -59,14 +60,9 @@ export class GanttChartHourlyView extends ItemView {
 
             // 初始化并渲染甘特图
             this.gantt = new GanttHourly('#gantt-svg-hourly', ganttData, {
-                header_height: 50,
-                column_width: 30,
-                step: 24,
+
                 view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month','Fifteen Minutes'],
-                bar_height: 20,
-                bar_corner_radius: 3,
-                arrow_curve: 5,
-                padding: 18,
+
                 view_mode: 'Quarter Day',
                 date_format: 'YYYY-MM-DD-HH:mm',
                 language: 'en',

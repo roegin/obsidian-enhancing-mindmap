@@ -74,6 +74,9 @@ export default class Bar {
     }
 
     draw_bar() {
+        this.width = this.compute_width(); // 更新条目宽度
+
+
         this.$bar = createSVG('rect', {
             /* 原有
             x: this.x,
@@ -103,18 +106,7 @@ export default class Bar {
             this.$bar.classList.add('bar-invalid');
         }
 
-            // 在这里加入测试矩形
-            /*
-        const testRect = createSVG('rect', {
-            x: this.x + 10, // 在任务条内部稍微偏移
-            y: this.y + 10,
-            width: 30,
-            height: 20,
-            fill: 'blue', // 用明显的颜色
-            class: 'test-rect',
-            append_to: this.bar_group,
-        });
-        */
+
     }
 
     draw_progress_bar() {
@@ -332,16 +324,23 @@ export default class Bar {
         const { step, column_width } = this.gantt.options;
         const task_start = this.task._start;
         const gantt_start = this.gantt.gantt_start;
-
-        const diff = date_utils.diff(task_start, gantt_start, 'hour');
-        let x = (diff / step) * column_width;
-
+    
+        let x = 0;
         if (this.gantt.view_is('Month')) {
             const diff = date_utils.diff(task_start, gantt_start, 'day');
             x = (diff * column_width) / 30;
+        } else if (this.gantt.view_is('Quarter Day')) {
+            const hoursDiff = date_utils.diff(task_start, gantt_start, 'hour');
+            console.log('task_start',task_start,'gantt_start',gantt_start)
+            const minutesDiff = date_utils.diff(task_start, gantt_start, 'minute') % 60;
+            x = (hoursDiff * column_width) + (minutesDiff * column_width / 60);
+        } else {
+            const diff = date_utils.diff(task_start, gantt_start, 'hour');
+            x = (diff / step) * column_width;
         }
         return x;
     }
+    
 
     compute_y() {
         return (
@@ -432,6 +431,25 @@ export default class Bar {
             arrow.update();
         }
     }
+
+    //功能: 计算宽度的新方法
+    compute_width() {
+        const task_start = date_utils.parseExtended(this.task.start);
+        const task_end = date_utils.parseExtended(this.task.end);
+    
+        // 计算任务持续的分钟数
+        const duration_minutes = date_utils.diff(task_end, task_start, 'minute');
+    
+        // 假设每分钟的宽度为固定的像素值，例如1像素
+        const pixels_per_minute = 1; // 根据你的需求调整这个值
+    
+        // 任务的宽度等于持续时间的分钟数乘以每分钟的像素宽度
+        const width = duration_minutes * pixels_per_minute;
+    
+        return width;
+    }
+    
+    
 }
 
 function isFunction(functionToCheck) {

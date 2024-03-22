@@ -173,3 +173,172 @@
   fill: #333;
 }
 
+
+
+/* 功能: 修改甘特图背景为深灰色 */
+.gantt .grid-background {
+  fill: #333333; /* 深灰色背景 */
+}
+
+/* 功能: 修改甘特图标题栏为深灰色背景，文字为亮色 */
+.gantt .grid-header {
+  fill: #292929; /* 深灰色背景 */
+  stroke: #474747;
+  stroke-width: 1.4;
+}
+
+/* 功能: 修改甘特图行为深灰色背景，文字为亮色 */
+.gantt .grid-row {
+  fill: #252525; /* 深灰色背景 */
+}
+.gantt .grid-row:nth-child(even) {
+  fill: #303030; /* 比标准深灰色略亮的背景 */
+}
+
+/* 功能: 修改甘特图线条为更亮的颜色 */
+.gantt .row-line, .gantt .tick, .gantt .tick.thick {
+  stroke: #404040; /* 深灰色线条，使之不那么显眼 */
+}
+
+/* 功能: 保留今日高亮颜色 */
+.gantt .today-highlight {
+  fill: #686868;
+  opacity: 0.5;
+}
+
+/* 功能: 修改甘特图箭头为亮色 */
+.gantt .arrow {
+  fill: none;
+  stroke: #e0e0e0; /* 亮色箭头 */
+  stroke-width: 1.4;
+}
+
+/* 功能: 修改甘特图条和进度为亮色 */
+.gantt .bar {
+  fill: #8D99A6; /* 浅灰色 */
+  stroke: #a3a3ff; /* 亮色边框 */
+  stroke-width: 0;
+  transition: stroke-width 0.3s ease;
+}
+.gantt .bar-progress {
+  fill: #a3a3ff; /* 亮色进度条 */
+}
+
+/* 功能: 修改无效甘特图条为亮色 */
+.gantt .bar-invalid {
+  fill: transparent;
+  stroke: #e0e0e0; /* 亮色虚线 */
+  stroke-width: 1;
+  stroke-dasharray: 5;
+}
+
+/* 功能: 修改甘特图条文字为亮色 */
+.gantt .bar-label {
+  fill: #ffffff; /* 白色文字 */
+  dominant-baseline: central;
+  text-anchor: middle;
+  font-size: 12px;
+  font-weight: lighter;
+}
+
+.gantt .bar-label.big {
+  fill: #ffffff; /* 白色文字 */
+  text-anchor: start;
+}
+
+.gantt .upper-text {
+  fill: #8b8b8b;
+}
+.gantt .lower-text {
+  fill: #838383;
+}
+
+/* 功能: 修改甘特图悬停效果为亮色 */
+.gantt .bar-wrapper:hover .bar, .gantt .bar-wrapper.active .bar {
+  fill: #a9b5c1; /* 亮灰色背景 */
+}
+.gantt .bar-wrapper:hover .bar-progress, .gantt .bar-wrapper.active .bar-progress {
+  fill: #8a8aff; /* 亮蓝色进度条 */
+}
+
+/* 功能: 保留其他样式 */
+.gantt .handle {
+  fill: #ddd;
+  cursor: ew-resize;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+.gantt .bar-wrapper {
+  cursor: pointer;
+  outline: none;
+}
+.gantt .bar-wrapper:hover .handle {
+  visibility: visible;
+  opacity: 1;
+}
+.gantt-container {
+  position: relative;
+  overflow: auto;
+  font-size: 12px;
+}
+.gantt-container .popup-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 0;
+  color: #959da5;
+  border-radius: 3px;
+}
+.gantt-container .popup-wrapper .title {
+  border-bottom: 3px solid #a3a3ff;
+  padding: 10px;
+}
+.gantt-container .popup-wrapper .subtitle {
+  padding: 10px;
+  color: #dfe2e5;
+}
+.gantt-container .popup-wrapper .pointer {
+  position: absolute;
+  height: 5px;
+  margin: 0 0 0 -5px;
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
+.bar-label {
+  transition: visibility 0.2s;
+  fill: white;
+  background-color: black;
+}
+
+.bar-wrapper:hover .bar-label {
+  visibility: visible;
+}
+
+/* 蓝色直线样式 */
+.current-time-highlight {
+  fill: #007bff;  /* 鲜艳的蓝色 */
+  stroke: #0056b3; /* 深蓝色边框 */
+  stroke-width: 1; /* 边框宽度 */
+  opacity: 0.8;    /* 透明度 */
+}
+
+/* 当线条较细或需要更显眼时 */
+.current-time-highlight.thin {
+  stroke-width: 0.5; /* 更细的边框 */
+  opacity: 0.9;      /* 较高透明度 */
+}
+
+/* 当线条需要更加醒目时 */
+.current-time-highlight.bright {
+  fill: #63ceff;   /* 更亮的蓝色 */
+  stroke: #a1ddff; /* 更深的边框颜色 */
+  stroke-width: 2; /* 更宽的边框 */
+  opacity: 1;      /* 完全不透明 */
+}
+
+.current-time-text {
+  fill: #ffffff; /* 文本颜色 */
+  font-size: 12px; /* 文本大小 */
+}
