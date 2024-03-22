@@ -867,6 +867,7 @@ export default class Gantt {
             '#目标': { base: '#a3a3ff', progress: '#8383ff' }, // 浅蓝色及其变体
             '#完成': { base: '#90ee90', progress: '#76de76' },  // 浅绿色及其变体
             '#目标/完成': { base: '#90ee90', progress: '#76de76' } , // 浅绿色及其变体,
+            '#目标/基本完成': { base: '#4e796f', progress: '#83a19a' } , // 浅绿色及其变体,
             '#目标/进行中': { base: '#ffd700', progress: '#ffc700' } // 金色及其变体
 
         };
