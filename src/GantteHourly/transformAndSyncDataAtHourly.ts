@@ -1,10 +1,13 @@
 interface MindMapNode {
-    id: string;                // 节点唯一标识
-    text: string;              // 节点文本内容
-    children?: MindMapNode[];  // 子节点数组
-    startDate?: string;        // 开始日期，格式: "YYYY-MM-DD" 或 "YYYY-MM-DD-HH:MM"
-    endDate?: string;          // 结束日期，格式: "YYYY-MM-DD" 或 "YYYY-MM-DD-HH:MM"
+  id: string;
+  text: string;
+  children?: MindMapNode[];
+  startDate?: string;
+  endDate?: string;
+  actionStartDate?: string;  // 新增
+  actionEndDate?: string;    // 新增
 }
+
 
 
 interface GanttTask {
@@ -45,22 +48,30 @@ export function transformAndSyncDataAtHourly(mindMapNodes: MindMapNode[]): Gantt
     const dateTimeRegex = /\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/;
   
     // 检查节点是否包含指定标签，以及 startDate 或 endDate 是否包含具体的时间信息
-    if (node.text.includes("#目标") && (dateTimeRegex.test(node.startDate || '') || dateTimeRegex.test(node.endDate || ''))) {
-      const newId = node.id; // 使用现有的ID
-      nodeIdMap.set(node.id, newId); // 存储映射
-  
-      const ganttTask: GanttTask = {
-        id: newId,
-        name: node.text,
-        start: node.startDate || today,
-        end: node.endDate || today,
-        progress: 20,
-        parent: closestTargetAncestorId || '', // 使用最近的符合条件的祖先节点ID
-        dependencies: closestTargetAncestorId || ''
-      };
-  
-      ganttTasks.push(ganttTask);
-      closestTargetAncestorId = newId; // 更新最近的目标祖先节点ID
+    if (node.text.includes("#目标")) {
+      // 检查是否有具体的开始或结束时间
+      let hasDateTime = dateTimeRegex.test(node.startDate || '') || dateTimeRegex.test(node.endDate || '') || dateTimeRegex.test(node.actionStartDate || '') || dateTimeRegex.test(node.actionEndDate || '');
+      
+      if (hasDateTime) {
+        const newId = node.id; // 使用现有的ID
+        nodeIdMap.set(node.id, newId); // 存储映射
+
+        let taskStart = node.startDate || node.actionStartDate || today;
+        let taskEnd = node.endDate || node.actionEndDate || taskStart;
+
+        const ganttTask: GanttTask = {
+          id: newId,
+          name: node.text,
+          start: taskStart,
+          end: taskEnd,
+          progress: 20,
+          parent: closestTargetAncestorId || '', // 使用最近的符合条件的祖先节点ID
+          dependencies: closestTargetAncestorId || ''
+        };
+
+        ganttTasks.push(ganttTask);
+        closestTargetAncestorId = newId; // 更新最近的目标祖先节点ID
+      }
     }
   
     if (node.children) {

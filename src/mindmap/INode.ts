@@ -45,6 +45,8 @@ export class INodeData implements INode{
     children?:INodeData[];
     startDate?: string;
     endDate?: string;
+    actionStartDate?: string; // 新增字段
+    actionEndDate?: string; // 新增字段
 }
 
 export default class Node {

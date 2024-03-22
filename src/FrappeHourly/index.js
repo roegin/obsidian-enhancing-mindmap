@@ -415,11 +415,10 @@ export default class GanttHourly {
         }
     
         this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
-        console.log('gantt_start',this.gantt_start)
         this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
     
         // add date padding on both sides
-        if (this.view_is([ VIEW_MODE.HALF_DAY])) {
+        if (this.view_is(VIEW_MODE.HALF_DAY)) {
             this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
             this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
         } else if (this.view_is(VIEW_MODE.MONTH)) {
@@ -429,8 +428,11 @@ export default class GanttHourly {
             this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
         } else if (this.view_is(VIEW_MODE.QUARTER_DAY)) {
-            this.gantt_start = date_utils.add(this.gantt_start, -1, 'day');
-            this.gantt_end = date_utils.add(this.gantt_end, 2, 'day');
+            // Adjust start and end dates by adding 2 hours
+           // this.gantt_start = date_utils.add(this.gantt_start, -1, 'day');
+
+           this.gantt_end = date_utils.add(this.gantt_end, 2, 'day');
+
         } else if (this.view_is(VIEW_MODE.FIFTEEN_MINUTES)) {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'day');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'day');
@@ -439,6 +441,7 @@ export default class GanttHourly {
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
         }
     }
+    
     
 
     setup_date_values() {
@@ -723,14 +726,16 @@ export default class GanttHourly {
             if (this.view_is(VIEW_MODE.QUARTER_DAY)) {
                 // 当前时间
                 const now = date_utils.now();
-                // 计算当前时间与甘特图开始时间的小时差
-                const hours_diff = date_utils.diff(now, this.gantt_start, 'hour');
-                // 计算当前小时的X坐标位置
+                // 将当前时间推进两小时用于计算位置
+                const nowPlusTwoHours = date_utils.add(now, 2, 'hour');
+                // 计算推进后的时间与甘特图开始时间的小时差
+                const hours_diff = date_utils.diff(nowPlusTwoHours, this.gantt_start, 'hour');
+                // 计算推进后的当前小时的X坐标位置
                 x = (hours_diff / this.options.step) * this.options.column_width;
                 // 高亮区域的宽度是一小时的列宽
                 width = this.options.column_width;
             } else {
-                // DAY模式下的逻辑
+                // DAY模式下的逻辑，可能需要相应调整
                 x = (date_utils.diff(date_utils.today(), this.gantt_start, 'hour') /
                 this.options.step) * this.options.column_width;
                 width = this.options.column_width;
@@ -750,47 +755,51 @@ export default class GanttHourly {
                 append_to: this.layers.grid,
             });
         }
-
+    
         // 新增的精确到分钟的蓝色直线逻辑
         if (this.view_is(VIEW_MODE.QUARTER_DAY)) {
             // 获取当前时间
             const now = date_utils.now();
-            // 计算当前时间与甘特图开始时间的小时差
-            const hours_diff = date_utils.diff(now, this.gantt_start, 'hour');
+            // 将当前时间推进两小时用于计算位置
+            const nowPlusTwoHours = date_utils.add(now, 2, 'hour');
+            // 计算推进后的时间与甘特图开始时间的小时差
+            const hours_diff = date_utils.diff(nowPlusTwoHours, this.gantt_start, 'hour');
             // 计算分钟差（当前小时内的分钟数）
             const minutes_diff = now.getMinutes();
             // 计算当前分钟在一个小时内的百分比
             const minute_percent = minutes_diff / 60;
             // 计算蓝线的X坐标
             const currentTimePosition = (hours_diff + minute_percent) * this.options.column_width;
-
+    
             const y = 0;
             const height = (this.options.bar_height + this.options.padding) *
             this.tasks.length + this.options.header_height;
-
+    
             // 创建蓝色直线
             createSVG('line', {
                 x1: currentTimePosition,
                 y1: y,
                 x2: currentTimePosition,
                 y2: height,
-                class: 'current-time-highlight bright', // 使用CSS中定义的样式
+                class: 'current-time-highlight bright',
                 append_to: this.layers.grid
             });
-
-            // 获取当前时间文本
+    
+            // 显示未推进的当前时间
             const currentTimeText = date_utils.format(now, 'HH:mm', this.options.language);
-
+    
             // 添加显示当前时间的文本
             createSVG('text', {
-                x: currentTimePosition + 5, // 在线条右侧留出一些空间
-                y: 15, // 在顶部留出一些空间
+                x: currentTimePosition + 5,
+                y: 15,
                 innerHTML: currentTimeText,
-                class: 'current-time-text', // 使用CSS中定义的样式
+                class: 'current-time-text',
                 append_to: this.layers.grid
             });
         }
     }
+    
+    
     
 
     make_dates() {

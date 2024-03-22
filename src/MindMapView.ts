@@ -22,6 +22,9 @@ import { GanttChartView } from './dGantte/GanttChartView';
 import Gantt from './frappe/index';
 import { GanttChartHourlyView } from "./GantteHourly/GanttChartHourlyView";
 
+import moment from 'moment';
+
+
 export function uuid(): string {
   function S4() {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -419,14 +422,51 @@ export class MindMapView extends TextFileView implements HoverParent {
       const dateMatch = dateRegex.exec(mapData.v);
       const startDate = dateMatch ? dateMatch[1] : null;
       const endDate = dateMatch && dateMatch[2] ? dateMatch[2] : null;
-  
+    
+      // 解析特殊日期格式
+      const specialDateTimeRegex = /(\d{4}-\d{2}-\d{2})-(\d{2}):(\d{2})-(\d+h|\d+m)/;
+      const specialDateTimeMatch = specialDateTimeRegex.exec(mapData.v);
+      let actionStartDate = null;
+      let actionEndDate = null;
+
+      if (specialDateTimeMatch) {
+        const datePart = specialDateTimeMatch[1];
+        const hourPart = specialDateTimeMatch[2];
+        const minutePart = specialDateTimeMatch[3];
+        const duration = specialDateTimeMatch[4];
+
+        // 使用 Moment.js 解析开始日期和时间，指定为北京时间
+        actionStartDate = moment(`${datePart} ${hourPart}:${minutePart}`, 'YYYY-MM-DD HH:mm').utcOffset('+08:00');
+
+        // 增加时间间隔
+        if (duration.endsWith('h')) {
+          actionEndDate = moment(actionStartDate).add(parseInt(duration), 'hours');
+        } else if (duration.endsWith('m')) {
+          actionEndDate = moment(actionStartDate).add(parseInt(duration), 'minutes');
+        }
+
+        // 格式化为特定字符串格式
+        actionStartDate = actionStartDate.format('YYYY-MM-DD-HH:mm');
+        actionEndDate = actionEndDate.format('YYYY-MM-DD-HH:mm');
+      }
+
+      
+
+      if (specialDateTimeMatch) {
+        console.log('specialDateTimeMatch',actionStartDate,actionEndDate)
+      }
+
+
       var map: INodeData = {
         id: id || uuid(),
         text: mapData.v,
-        startDate: startDate, // 添加开始日期字段
-        endDate: endDate, // 添加结束日期字段
+        startDate: startDate, // 现有开始日期字段
+        endDate: endDate, // 现有结束日期字段
+        actionStartDate: actionStartDate, // 新增字段
+        actionEndDate: actionEndDate, // 新增字段
         children: []
       };
+
   
       if (flag && mapData.c && mapData.c.length) {
         mapData.c.forEach((data: any) => {

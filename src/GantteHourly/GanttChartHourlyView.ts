@@ -17,6 +17,8 @@ interface MindMapNode {
 
 export class GanttChartHourlyView extends ItemView {
     gantt: any; // 保存 Gantt 实例的属性
+    refreshInterval: any;
+
 
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
@@ -40,18 +42,25 @@ export class GanttChartHourlyView extends ItemView {
         container.appendChild(svgElementSingleDay);
 
         this.updateGanttChart()
+
+                // 设置定时器每五分钟刷新一次视图
+        this.refreshInterval = setInterval(() => {
+            this.updateGanttChart();
+        }, 300000); // 300000 毫秒等于五分钟
     }
 
-    // 功能: 加载单日甘特图的任务数据
-    async loadSingleDayTasks(): Promise<any[]> {
-        // 实现加载数据的逻辑
-        // ...
-        return []; // 返回模拟的任务数据
-    }
+    async onClose() {
+        // 清除定时器
+        clearInterval(this.refreshInterval);
+      }
+    
+
+
 
     async updateGanttChart() {
         // 获取思维导图数据
         const mindMapData = this.getMindMapData(); 
+        //console.log('mindMapData',mindMapData)
         if (mindMapData.length > 0) {
             // 转换数据为甘特图格式
             const ganttData = transformAndSyncDataAtHourly(mindMapData); 

@@ -322,7 +322,7 @@ export default class Bar {
 
     compute_x() {
         const { step, column_width } = this.gantt.options;
-        const task_start = this.task._start;
+        let task_start = this.task._start;
         const gantt_start = this.gantt.gantt_start;
     
         let x = 0;
@@ -330,8 +330,10 @@ export default class Bar {
             const diff = date_utils.diff(task_start, gantt_start, 'day');
             x = (diff * column_width) / 30;
         } else if (this.gantt.view_is('Quarter Day')) {
+            // Add 2 hours to task_start for Quarter Day view
+            task_start = date_utils.add(task_start, 2, 'hour');
             const hoursDiff = date_utils.diff(task_start, gantt_start, 'hour');
-            console.log('task_start',task_start,'gantt_start',gantt_start)
+            //console.log('task_start', task_start, 'gantt_start', gantt_start);
             const minutesDiff = date_utils.diff(task_start, gantt_start, 'minute') % 60;
             x = (hoursDiff * column_width) + (minutesDiff * column_width / 60);
         } else {
@@ -340,6 +342,7 @@ export default class Bar {
         }
         return x;
     }
+    
     
 
     compute_y() {
