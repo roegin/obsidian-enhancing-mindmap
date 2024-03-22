@@ -379,7 +379,7 @@ export default class GanttHourly {
             this.options.step = 24 / 2;
             this.options.column_width = 38;
         } else if (view_mode === VIEW_MODE.QUARTER_DAY) {
-            this.options.step = 24 / 4;
+            this.options.step = 1;
             this.options.column_width = 38;
         } else if (view_mode === VIEW_MODE.WEEK) {
             this.options.step = 24 * 7;
@@ -391,8 +391,8 @@ export default class GanttHourly {
             this.options.step = 24 * 365;
             this.options.column_width = 120;
         }  else   if (view_mode === VIEW_MODE.FIFTEEN_MINUTES) {
-            this.options.step = 0.25; // 15分钟
-            this.options.column_width = 15; // 或根据实际需求调整
+            this.options.step = 1; // 15分钟
+            this.options.column_width = 38; // 或根据实际需求调整
         }
     }
 

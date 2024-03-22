@@ -20,6 +20,7 @@ import { t } from './lang/helpers'
 import domtoimage from './domtoimage.js'
 import { GanttChartView } from './dGantte/GanttChartView';
 import Gantt from './frappe/index';
+import { GanttChartHourlyView } from "./GantteHourly/GanttChartHourlyView";
 
 export function uuid(): string {
   function S4() {
@@ -188,7 +189,15 @@ export class MindMapView extends TextFileView implements HoverParent {
       if (ganttView) {
           ganttView.updateGanttChart();
       }
-      
+
+
+      // 功能: 获取小时甘特图视图实例并更新数据
+      const ganttHourlyView = this.getGanttChartHourlyView();
+      console.log('mindmap-getGanttChartHourlyView',ganttHourlyView)
+      if (ganttHourlyView) {
+        ganttHourlyView.updateGanttChart();
+      }
+          
     }
   }
 
@@ -197,12 +206,31 @@ export class MindMapView extends TextFileView implements HoverParent {
   getGanttChartView() {
     // 获取所有打开的视图（leaves）
     const leaves = this.app.workspace.getLeavesOfType("gantt-chart-view");
+   // console.log('getgantt-chart-view-leaves',leaves)
     
     // 遍历并找到第一个甘特图视图实例
     for (const leaf of leaves) {
         if (leaf.view instanceof GanttChartView) {
             return leaf.view;
         }
+    }
+    return null;
+  }
+
+    // 功能: 获取小时甘特图视图实例
+  getGanttChartHourlyView() {
+    // 获取所有打开的视图（leaves）
+    const leaves = this.app.workspace.getLeavesOfType("gantt-chart-hourly-view");
+  //  console.log('getGanttChartHourlyView-leaves',leaves)
+
+
+    
+    
+    // 遍历并找到第一个小时甘特图视图实例
+    for (const leaf of leaves) {
+      if (leaf.view instanceof GanttChartHourlyView) {
+        return leaf.view;
+      }
     }
     return null;
   }
@@ -510,6 +538,7 @@ export class MindMapView extends TextFileView implements HoverParent {
     } else {
         let activeLeaf = this.app.workspace.activeLeaf;
         if (activeLeaf) {
+          console.log('打开脑图连接小时甘特图')
             const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
             await newLeaf.setViewState({
                 type: "gantt-chart-hourly-view",

@@ -22,7 +22,7 @@ export class GanttChartHourlyView extends ItemView {
     }
   
     getViewType() {
-        return "gantt-chart-hourly-view'";
+        return "gantt-chart-hourly-view";
     }
   
     getDisplayText() {
@@ -67,7 +67,7 @@ export class GanttChartHourlyView extends ItemView {
                 bar_corner_radius: 3,
                 arrow_curve: 5,
                 padding: 18,
-                view_mode: 'Day',
+                view_mode: 'Quarter Day',
                 date_format: 'YYYY-MM-DD-HH:mm',
                 language: 'en',
                 custom_popup_html: null
