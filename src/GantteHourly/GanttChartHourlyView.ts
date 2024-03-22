@@ -38,24 +38,7 @@ export class GanttChartHourlyView extends ItemView {
         svgElementSingleDay.id = 'gantt-svg-hourly';
         container.appendChild(svgElementSingleDay);
 
-        // 加载单日甘特图所需的数据
-        const tasksWithDateInfo = await this.loadSingleDayTasks();
-
-        // 初始化并渲染单日甘特图
-        this.ganttSingleDay = new GanttHourly('#gantt-svg-hourly', tasksWithDateInfo, {
-            header_height: 50,
-            column_width: 30,
-            step: 24,
-            view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
-            bar_height: 20,
-            bar_corner_radius: 3,
-            arrow_curve: 5,
-            padding: 18,
-            view_mode: 'FIFTEEN_MINUTES',
-            date_format: 'YYYY-MM-DD-HH:mm',
-            language: 'en',
-            custom_popup_html: null
-        });
+        this.updateGanttChart()
     }
 
     // 功能: 加载单日甘特图的任务数据
@@ -75,7 +58,7 @@ export class GanttChartHourlyView extends ItemView {
 
 
             // 初始化并渲染甘特图
-            this.gantt = new GanttHourly('#gantt-svg', ganttData, {
+            this.gantt = new GanttHourly('#gantt-svg-hourly', ganttData, {
                 header_height: 50,
                 column_width: 30,
                 step: 24,
@@ -84,7 +67,7 @@ export class GanttChartHourlyView extends ItemView {
                 bar_corner_radius: 3,
                 arrow_curve: 5,
                 padding: 18,
-                view_mode: 'Fifteen Minutes',
+                view_mode: 'Day',
                 date_format: 'YYYY-MM-DD-HH:mm',
                 language: 'en',
                 custom_popup_html: null
@@ -95,7 +78,7 @@ export class GanttChartHourlyView extends ItemView {
 
     getMindMapData(): INodeData[] {
         const mindMapView = this.getMindMapView();
-        console.log('mindMapView',mindMapView)
+        //console.log('mindMapView',mindMapView)
         if (!mindMapView) {
             return [];
         }

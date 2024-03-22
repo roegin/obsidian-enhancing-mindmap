@@ -1253,7 +1253,7 @@ export default class GanttHourly {
     }
 }
 
-Gantt.VIEW_MODE = VIEW_MODE;
+GanttHourly.VIEW_MODE = VIEW_MODE;
 
 function generate_id(task) {
     return task.name + '_' + Math.random().toString(36).slice(2, 12);

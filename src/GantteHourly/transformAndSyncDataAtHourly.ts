@@ -41,28 +41,33 @@ export function transformAndSyncDataAtHourly(mindMapNodes: MindMapNode[]): Gantt
 
   // 功能: 递归遍历思维导图节点
   function traverseMindMapNode(node: MindMapNode, closestTargetAncestorId: string | null) {
-    if (node.text.includes("#目标") &&( node.startDate || node.endDate)){ // 只处理包含特定标签的节点
-        const newId = node.id; // 使用现有的ID
-        nodeIdMap.set(node.id, newId); // 存储映射
-
-        const ganttTask: GanttTask = {
-            id: newId,
-            name: node.text,
-            start: node.startDate || today,
-            end: node.endDate || today,
-            progress: 20,
-            parent: closestTargetAncestorId || '', // 使用最近的符合条件的祖先节点ID
-            dependencies: closestTargetAncestorId || ''
-        };
-
-        ganttTasks.push(ganttTask);
-        closestTargetAncestorId = newId; // 更新最近的目标祖先节点ID
+    // 正则表达式来检查日期字符串是否包含时间部分
+    const dateTimeRegex = /\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/;
+  
+    // 检查节点是否包含指定标签，以及 startDate 或 endDate 是否包含具体的时间信息
+    if (node.text.includes("#目标") && (dateTimeRegex.test(node.startDate || '') || dateTimeRegex.test(node.endDate || ''))) {
+      const newId = node.id; // 使用现有的ID
+      nodeIdMap.set(node.id, newId); // 存储映射
+  
+      const ganttTask: GanttTask = {
+        id: newId,
+        name: node.text,
+        start: node.startDate || today,
+        end: node.endDate || today,
+        progress: 20,
+        parent: closestTargetAncestorId || '', // 使用最近的符合条件的祖先节点ID
+        dependencies: closestTargetAncestorId || ''
+      };
+  
+      ganttTasks.push(ganttTask);
+      closestTargetAncestorId = newId; // 更新最近的目标祖先节点ID
     }
-
+  
     if (node.children) {
-        node.children.forEach(child => traverseMindMapNode(child, closestTargetAncestorId));
+      node.children.forEach(child => traverseMindMapNode(child, closestTargetAncestorId));
     }
   }
+  
 
   if (mindMapNodes.length > 0) {
     traverseMindMapNode(mindMapNodes[0], null); // 从根节点开始遍历
