@@ -511,6 +511,26 @@ export default class GanttHourly {
         if (barElements.length > 0) {
             console.log("First bar element attributes:", barElements[0].getBoundingClientRect());
         }
+
+                // 设置滚动位置到当天
+        this.set_scroll_position_to_today();
+    }
+
+    // 功能: 设置甘特图的滚动位置，使其显示当天的时间
+    set_scroll_position_to_today() {
+        const parent_element = this.$svg.parentElement;
+        if (!parent_element) return;
+    
+        // 获取当前时间
+        const now = date_utils.now();
+        // 计算当前时间与甘特图开始时间的小时差
+        const hours_diff = date_utils.diff(now, this.gantt_start, 'hour');
+        
+        // 计算滚动位置
+        const scroll_pos = hours_diff * this.options.column_width;
+        
+        // 设置滚动位置
+        parent_element.scrollLeft = scroll_pos;
     }
 
     make_single_day_tasks() {
