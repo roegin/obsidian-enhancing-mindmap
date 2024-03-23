@@ -520,6 +520,18 @@ export default class GanttHourly {
     set_scroll_position_to_today() {
         const parent_element = this.$svg.parentElement;
         if (!parent_element) return;
+
+        // 获取垂直滚动位置
+        /*
+        const verticalScrollPos = this.set_scroll_position_to_tagged_task();
+
+        // 如果找到了含特定标签的任务，设置滚动位置
+        if (verticalScrollPos !== null) {
+            console.log('verticalScrollPos',verticalScrollPos)
+            parent_element.scrollTop = verticalScrollPos;
+        }
+        */
+
     
         // 获取当前时间
         const now = date_utils.now();
@@ -532,6 +544,34 @@ export default class GanttHourly {
         // 设置滚动位置
         parent_element.scrollLeft = scroll_pos;
     }
+
+    set_scroll_position_to_tagged_task() {
+        const parent_element = this.$svg.parentElement;
+        if (!parent_element) return;
+    
+        // 查找包含特定标签的第一个任务
+        let targetTask = this.tasks.find(task => 
+            task.name.includes('#目标/进行中')
+        );
+    
+        // 如果找到目标任务
+        if (targetTask) {
+            const taskBar = this.bars.find(bar => bar.task.id === targetTask.id);
+            if (taskBar) {
+                // 计算任务条的垂直位置
+                const taskPosition = taskBar.group.getBBox().y;
+    
+                // 计算使任务位于窗口顶部的滚动位置
+                // 假设 taskPosition 是 626，则需要滚动到 626 的位置
+                // 可以根据需要减去额外的空间，例如 header 的高度
+                const scrollPosition = taskPosition - this.options.header_height;
+    
+                // 设置垂直滚动位置
+                parent_element.scrollTop = scrollPosition;
+            }
+        }
+    }
+    
 
     make_single_day_tasks() {
         const singleDayTaskLayer = createSVG('g', { class: 'single-day-tasks', append_to: this.$svg });
