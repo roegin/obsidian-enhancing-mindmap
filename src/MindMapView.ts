@@ -47,6 +47,7 @@ export class MindMapView extends TextFileView implements HoverParent {
   fileCache: any;
   firstInit: boolean = true;
   gantt: any;
+  private savedScrollPosition: { x: number; y: number } | null = null;
 
   getViewType() {
     return mindmapViewType;
@@ -154,7 +155,12 @@ export class MindMapView extends TextFileView implements HoverParent {
 
   mindMapChange() {
     console.log('mindMapChange')
+
     if (this.mindmap) {
+
+       // 功能: 在脑图刷新前保存滚动位置
+      //const scrollPosition = this.saveScrollPosition();
+
       var md = this.mindmap.getMarkdown();
       //功能: 刷新数据
       this.mindmap.data = this.mdToData(md);
@@ -200,9 +206,48 @@ export class MindMapView extends TextFileView implements HoverParent {
       if (ganttHourlyView) {
         ganttHourlyView.updateGanttChart();
       }
+
+        // 刷新操作完成后，恢复滚动位置
+      //this.restoreScrollPosition(scrollPosition);
           
     }
   }
+
+  /**
+   * 功能: 在脑图刷新前保存滚动位置
+   * 如果没有有效的滚动位置，则返回 null
+   */
+  saveScrollPosition(): void {
+    if (this.mindmap && this.mindmap.containerEL) {
+      const x = this.mindmap.containerEL.scrollLeft;
+      const y = this.mindmap.containerEL.scrollTop;
+  
+     // console.log('truexy', { x, y });
+  
+      // 当x和y都为0时，不更新保存的滚动位置
+      if (x === 0 && y === 0) {
+        return;
+      }
+  
+      // 更新保存的滚动位置
+      this.savedScrollPosition = { x, y };
+    }
+  }
+  
+  /**
+   * 功能: 在脑图刷新后恢复滚动位置
+   * 如果保存的位置为 null，则不执行任何操作
+   */
+  restoreScrollPosition(): void {
+    if (this.savedScrollPosition && this.mindmap && this.mindmap.containerEL) {
+      console.log('this.savedScrollPosition', this.savedScrollPosition);
+      this.mindmap.containerEL.scrollLeft = this.savedScrollPosition.x;
+      this.mindmap.containerEL.scrollTop = this.savedScrollPosition.y;
+    }
+  }
+
+
+
 
   // 功能: 获取甘特图视图实例
   // 功能: 获取甘特图视图实例
@@ -278,6 +323,8 @@ export class MindMapView extends TextFileView implements HoverParent {
         'mindmap-plugin': 'basic'
       }
     }
+
+
 
   }
 
@@ -373,8 +420,16 @@ export class MindMapView extends TextFileView implements HoverParent {
       this.app.workspace.on("quick-preview", () => this.onQuickPreview, this)
     );
     this.registerEvent(
-      this.app.workspace.on('resize', () => this.updateMindMap(), this)
+      this.app.workspace.on('resize', () => {
+        // 功能: 在更新脑图之前保存滚动位置
+        this.saveScrollPosition();
+        this.updateMindMap()
+                // 功能: 更新脑图后恢复滚动位置
+        this.restoreScrollPosition();
+      }, this)
     );
+
+
   }
 
   onQuickPreview(file: TFile, data: string) {
@@ -551,42 +606,49 @@ export class MindMapView extends TextFileView implements HoverParent {
     super.onMoreOptionsMenu(menu);
   }
 
-  // 在MindMapView类中实现打开甘特图的方法
+  // 功能: 打开甘特图视图并处理滚动位置
   async openGanttChart() {
-    // 检查当前是否已有一个甘特图视图激活，如果有，则直接切换到该视图
+    // 在打开甘特图视图前保存当前滚动位置
+    this.saveScrollPosition();
+
     const existingGanttChartView = this.app.workspace.getLeavesOfType('gantt-chart-view')[0];
     if (existingGanttChartView) {
       this.app.workspace.setActiveLeaf(existingGanttChartView);
     } else {
-      // 创建一个新的甘特图视图
       let activeLeaf = this.app.workspace.activeLeaf;
       if (activeLeaf) {
-        console.log('打开脑图连接甘特图')
-          // Create a new leaf by splitting the active leaf horizontally
-          const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
-          await newLeaf.setViewState({
-              type: "gantt-chart-view",
-          });
+        const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
+        await newLeaf.setViewState({
+          type: "gantt-chart-view",
+        });
       }
     }
+
+    // 在新视图加载完成后恢复滚动位置
+    setTimeout(() => this.restoreScrollPosition(), 100);
   }
 
+  // 功能: 打开小时甘特图视图并处理滚动位置
   async openGanttChartHourlyView() {
+    // 在打开小时甘特图视图前保存当前滚动位置
+    this.saveScrollPosition();
+
     const existingView = this.app.workspace.getLeavesOfType('gantt-chart-hourly-view')[0];
     if (existingView) {
-        this.app.workspace.setActiveLeaf(existingView);
+      this.app.workspace.setActiveLeaf(existingView);
     } else {
-        let activeLeaf = this.app.workspace.activeLeaf;
-        if (activeLeaf) {
-          console.log('打开脑图连接小时甘特图')
-            const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
-            await newLeaf.setViewState({
-                type: "gantt-chart-hourly-view",
-            });
-        }
+      let activeLeaf = this.app.workspace.activeLeaf;
+      if (activeLeaf) {
+        const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
+        await newLeaf.setViewState({
+          type: "gantt-chart-hourly-view",
+        });
+      }
     }
-}
 
+    // 在新视图加载完成后恢复滚动位置
+    setTimeout(() => this.restoreScrollPosition(), 100);
+  }
 
   
   showDatePicker() {

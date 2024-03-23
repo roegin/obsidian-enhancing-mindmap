@@ -100,6 +100,18 @@ export default class Bar {
             append_to: this.bar_group,
         });
 
+        // 如果任务有 isDayLevel 属性，则在底部添加黄色光芒
+        if (this.task.isDayLevel) {
+            createSVG('rect', {
+                x: this.x,
+                y: this.y + this.height, // 在任务条的底部
+                width: this.width,
+                height: 2, // 光芒的高度，可根据需要调整
+                fill: 'yellow', // 光芒的颜色
+                append_to: this.bar_group,
+            });
+        }
+
         animateSVG(this.$bar, 'width', 0, this.width);
 
         if (this.invalid) {

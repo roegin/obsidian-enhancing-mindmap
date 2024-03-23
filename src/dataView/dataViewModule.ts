@@ -54,7 +54,8 @@ export namespace DataViewModule {
             const name=item.text
             const start = dateMatch ? dateMatch[1] : null;
             const end = dateMatch && dateMatch[2] ? dateMatch[2] : start; // 如果没有结束日期，使用开始日期
-            return { ...item, start, end ,name};
+            const isDayLevel=true
+            return { ...item, start, end ,name,isDayLevel};
         });
     }
 
