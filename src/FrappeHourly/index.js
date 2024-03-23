@@ -1097,23 +1097,57 @@ export default class GanttHourly {
         }
     }
 
-    set_scroll_position() {
+    // 功能: 设置甘特图的滚动位置
+    set_scroll_position(horizontalPos = null, verticalPos = null) {
         const parent_element = this.$svg.parentElement;
         if (!parent_element) return;
 
-        const hours_before_first_task = date_utils.diff(
-            this.get_oldest_starting_date(),
-            this.gantt_start,
-            'hour'
-        );
+        // 如果提供了水平位置和垂直位置，则使用它们
+        if (horizontalPos !== null) {
+            parent_element.scrollLeft = horizontalPos;
+        }
+        if (verticalPos !== null) {
+            parent_element.scrollTop = verticalPos;
+        }
 
-        const scroll_pos =
-            (hours_before_first_task / this.options.step) *
+        // 如果没有提供，则计算默认的滚动位置
+        if (horizontalPos === null) {
+            const hours_before_first_task = date_utils.diff(
+                this.get_oldest_starting_date(),
+                this.gantt_start,
+                'hour'
+            );
+            const scroll_pos =
+                (hours_before_first_task / this.options.step) *
                 this.options.column_width -
-            this.options.column_width;
+                this.options.column_width;
+            parent_element.scrollLeft = scroll_pos;
+        }
+        if (verticalPos === null) {
+            // 默认情况下，不改变垂直滚动位置
+            // 如果需要，可以在此处添加逻辑以计算默认的垂直滚动位置
+        }
 
-        parent_element.scrollLeft = scroll_pos;
+        // 记录当前滚动位置
+        this.current_scroll_position = {
+            x: parent_element.scrollLeft,
+            y: parent_element.scrollTop
+        };
     }
+
+    // 功能: 获取甘特图的水平滚动位置
+    getScrollPositionX() {
+        const parent_element = this.$svg.parentElement;
+        return parent_element ? parent_element.scrollLeft : 0;
+    }
+
+    // 功能: 获取甘特图的垂直滚动位置
+    getScrollPositionY() {
+        const parent_element = this.$svg.parentElement;
+        return parent_element ? parent_element.scrollTop : 0;
+    }
+
+
 
     bind_grid_click() {
         $.on(

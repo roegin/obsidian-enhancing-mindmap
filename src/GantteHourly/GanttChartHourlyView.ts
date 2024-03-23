@@ -19,8 +19,7 @@ interface MindMapNode {
 export class GanttChartHourlyView extends ItemView {
     gantt: any; // 保存 Gantt 实例的属性
     refreshInterval: any;
-    private lastScrollTop: number = 0; // 存储垂直滚动位置
-    private lastScrollLeft: number = 0;
+    private updateTimer: any = null;
 
 
     constructor(leaf: WorkspaceLeaf) {
@@ -59,61 +58,101 @@ export class GanttChartHourlyView extends ItemView {
     async onClose() {
         // 清除定时器
         clearInterval(this.refreshInterval);
+        clearInterval(this.updateTimer);
       }
     
 
 
 
       async updateGanttChart() {
-        const container2 = document.getElementById('gantt-svg-hourly');
-        if (container2) {
-            // 保存当前的滚动位置
-            this.lastScrollTop = container2.scrollTop;
-            this.lastScrollLeft = container2.scrollLeft;
-            console.log('this.lastScrollTop',this.lastScrollTop,this.lastScrollLeft)
+        // 取消之前的定时器（如果存在）
+        if (this.updateTimer) {
+            clearTimeout(this.updateTimer);
+            this.updateTimer = null;
         }
 
-        // 从 Data View 获取目标列表项
-        const targetListItems = await DataViewModule.getTargetListItems(this.app);
-        // 过滤出昨天、今天、明天的任务
-        const filteredTasks = await DataViewModule.filterTasksForTargetDays(DataViewModule.addDateInfoToListItems(targetListItems));
 
-        const filteredTasksToFull = DataViewModule.ensureFullDateTimeForTasks(filteredTasks)
-        console.log('targetListItems',targetListItems)
-        console.log('filteredTasks',filteredTasksToFull)
-
-        // 从思维导图获取数据
-        const mindMapData = this.getMindMapData();
-        const mindMapGanttData = transformAndSyncDataAtHourly(mindMapData);
-
-        // 合并两组数据，DataViewModule 数据在前
-        const combinedGanttData = [...filteredTasksToFull, ...mindMapGanttData];
-
-        // 检查是否有任务数据
-        if (combinedGanttData.length > 0) {
-            // 清空甘特图容器
-            const container = document.getElementById('gantt-svg-hourly');
-            if (container) {
-                container.innerHTML = '';
+        const updateLogic = async () => {
+            // 在更新视图前获取当前的滚动位置
+            let currentScrollPosition
+            if(this.gantt){
+                currentScrollPosition = {
+                    x: this.gantt.getScrollPositionX(),
+                    y: this.gantt.getScrollPositionY()
+                };
             }
 
-            // 初始化并渲染甘特图
-            this.gantt = new GanttHourly('#gantt-svg-hourly', combinedGanttData, {
-                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month', 'Fifteen Minutes'],
-                view_mode: 'Quarter Day',
-                date_format: 'YYYY-MM-DD-HH:mm',
-                language: 'en',
-                custom_popup_html: null
-            });
 
-            if (container) {
-                container.scrollTop = this.lastScrollTop;
-                container.scrollLeft = this.lastScrollLeft;
+
+            // 从 Data View 获取目标列表项
+            let targetListItems = await DataViewModule.getTargetListItems(this.app);
+
+
+
+            // 过滤掉当前脑图文件的数据
+            // 获取当前脑图文件的路径
+            const currentFilePath = this.getMindMapView()?.file?.path;
+            if(currentFilePath){
+                //console.log('targetListItems-currentFilePath',targetListItems)
+                targetListItems = targetListItems.filter(item => item.path !== currentFilePath);
             }
-        }
+            
+            // 过滤出昨天、今天、明天的任务
+            const filteredTasks = await DataViewModule.filterTasksForTargetDays(DataViewModule.addDateInfoToListItems(targetListItems));
 
-        //功能: 更新甘特图后，恢复之前的滚动位置
-       // const container2 = document.getElementById('gantt-svg-hourly');
+            const filteredTasksToFull = DataViewModule.ensureFullDateTimeForTasks(filteredTasks)
+            console.log('targetListItems',targetListItems)
+            console.log('filteredTasks',filteredTasksToFull)
+
+            // 从思维导图获取数据
+            const mindMapData = this.getMindMapData();
+
+            const mindMapGanttData = transformAndSyncDataAtHourly(mindMapData);
+
+            // 合并两组数据，DataViewModule 数据在前
+            const combinedGanttData = [...filteredTasksToFull, ...mindMapGanttData];
+
+
+            // 检查是否有任务数据
+            if (combinedGanttData.length > 0) {
+                // 清空甘特图容器
+                const container = document.getElementById('gantt-svg-hourly');
+                if (container) {
+
+
+
+                    container.innerHTML = '';
+                }
+
+                
+
+                // 初始化并渲染甘特图
+                this.gantt = new GanttHourly('#gantt-svg-hourly', combinedGanttData, {
+                    view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month', 'Fifteen Minutes'],
+                    view_mode: 'Quarter Day',
+                    date_format: 'YYYY-MM-DD-HH:mm',
+                    language: 'en',
+                    custom_popup_html: null
+                });
+
+
+            }
+
+            // 视图更新后，使用之前记录的滚动位置来恢复状态
+            if(this.gantt){
+                this.gantt.set_scroll_position(currentScrollPosition.x, currentScrollPosition.y);
+            }
+
+                        // ...剩余的更新逻辑
+        };
+
+        // 立即执行一次更新
+        await updateLogic();
+
+        // 设置一个五秒后的延时，再次执行更新
+        this.updateTimer = setTimeout(async () => {
+            await updateLogic();
+        }, 5000); // 5000 毫秒 = 5 秒
 
     }
 
