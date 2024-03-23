@@ -7,6 +7,7 @@ import { INodeData } from 'src/mindmap/INode';
 import { MindMapView } from 'src/MindMapView';
 import { transformAndSyncDataAtHourly } from './transformAndSyncDataAtHourly';
 import Gantt from './../frappe/index';
+import { DataViewModule } from 'src/dataView/dataViewModule';
 
 interface MindMapNode {
     id: string;
@@ -57,28 +58,40 @@ export class GanttChartHourlyView extends ItemView {
 
 
 
-    async updateGanttChart() {
-        // 获取思维导图数据
-        const mindMapData = this.getMindMapData(); 
-        //console.log('mindMapData',mindMapData)
-        if (mindMapData.length > 0) {
-            // 转换数据为甘特图格式
-            const ganttData = transformAndSyncDataAtHourly(mindMapData); 
-            console.log('ganttData2', ganttData);
+      async updateGanttChart() {
+        // 从 Data View 获取目标列表项
+        const targetListItems = await DataViewModule.getTargetListItems(this.app);
+        // 过滤出昨天、今天、明天的任务
+        const filteredTasks = await DataViewModule.filterTasksForTargetDays(DataViewModule.addDateInfoToListItems(targetListItems));
 
+        const filteredTasksToFull = DataViewModule.ensureFullDateTimeForTasks(filteredTasks)
+        console.log('targetListItems',targetListItems)
+        console.log('filteredTasks',filteredTasksToFull)
+
+        // 从思维导图获取数据
+        const mindMapData = this.getMindMapData();
+        const mindMapGanttData = transformAndSyncDataAtHourly(mindMapData);
+
+        // 合并两组数据，DataViewModule 数据在前
+        const combinedGanttData = [...filteredTasksToFull, ...mindMapGanttData];
+
+        // 检查是否有任务数据
+        if (combinedGanttData.length > 0) {
+            // 清空甘特图容器
+            const container = document.getElementById('gantt-svg-hourly');
+            if (container) {
+                container.innerHTML = '';
+            }
 
             // 初始化并渲染甘特图
-            this.gantt = new GanttHourly('#gantt-svg-hourly', ganttData, {
-
-                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month','Fifteen Minutes'],
-
+            this.gantt = new GanttHourly('#gantt-svg-hourly', combinedGanttData, {
+                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month', 'Fifteen Minutes'],
                 view_mode: 'Quarter Day',
                 date_format: 'YYYY-MM-DD-HH:mm',
                 language: 'en',
                 custom_popup_html: null
             });
         }
-
     }
 
     getMindMapData(): INodeData[] {

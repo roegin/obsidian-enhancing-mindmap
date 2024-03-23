@@ -1,12 +1,12 @@
 import moment from 'moment';
 export namespace DataViewModule {
-    export async function getTargetListItems(): Promise<any[]> {
-        if (!this.app.plugins.enabledPlugins.has('dataview')) {
+    export async function getTargetListItems(app:any): Promise<any[]> {
+        if (!app.plugins.enabledPlugins.has('dataview')) {
             console.error('Dataview plugin is not enabled.');
             return [];
         }
 
-        const dataview = this.app.plugins.plugins.dataview.api;
+        const dataview = app.plugins.plugins.dataview.api;
         let targetListItems: any[] = [];
         // 匹配有时间和无时间的日期格式
         const dateTimeRegex = /(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)/;
@@ -46,6 +46,18 @@ export namespace DataViewModule {
         return targetListItems;
     }
 
+    export function addDateInfoToListItems(listItems: any[]): any[] {
+        const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)(?:\s|$)/;
+    
+        return listItems.map(item => {
+            const dateMatch = dateRegex.exec(item.text);
+            const name=item.text
+            const start = dateMatch ? dateMatch[1] : null;
+            const end = dateMatch && dateMatch[2] ? dateMatch[2] : start; // 如果没有结束日期，使用开始日期
+            return { ...item, start, end ,name};
+        });
+    }
+
     export async function filterTasksForTargetDays(tasks: any[]): Promise<any[]> {
         return tasks.filter((task: any) => {
             if (task.start && task.end) {
@@ -60,6 +72,18 @@ export namespace DataViewModule {
                 return isTargetDay;
             }
             return false;
+        });
+    }
+
+    // 功能: 处理任务，确保日期包含具体的时间
+    export  function ensureFullDateTimeForTasks(tasks: any[]): any[] {
+        return tasks.map((task: any) => {
+            if (task.start && task.end) {
+                // 检查是否含有具体时间，如果没有，则添加时间
+                task.start = task.start.length === 10 ? `${task.start}-00:00` : task.start;
+                task.end = task.end.length === 10 ? `${task.end}-24:00` : task.end;
+            }
+            return task;
         });
     }
 }
