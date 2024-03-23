@@ -622,7 +622,7 @@ export default class GanttHourly {
         });
 
         $.attr(this.$svg, {
-            height: grid_height + this.options.padding + 100,
+            height: grid_height, // + this.options.padding + 100,
             width: '100%',
         });
     }
