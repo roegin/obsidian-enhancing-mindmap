@@ -208,6 +208,9 @@ export default class GanttHourly {
         // initialize with default view mode
         this.change_view_mode();
         this.bind_events();
+
+
+
     }
 
     setup_wrapper(element) {
@@ -471,6 +474,26 @@ export default class GanttHourly {
     bind_events() {
         this.bind_grid_click();
         this.bind_bar_events();
+
+        // 设置按下 Alt 时的水平滚动功能
+        this.setup_horizontal_scroll_on_alt();
+
+    }
+
+
+    // 功能: 使得在按下 Alt 时鼠标滚轮能够进行水平滚动
+    setup_horizontal_scroll_on_alt() {
+        const parent_element = this.$svg.parentElement;
+        if (parent_element) {
+            parent_element.addEventListener('wheel', (event) => {
+                if (event.altKey) { // 检查是否按下 Alt 键
+                    // 阻止默认的滚动行为
+                    event.preventDefault();
+                    // 水平滚动
+                    parent_element.scrollLeft += event.deltaY;
+                }
+            });
+        }
     }
 
     render() {
@@ -513,7 +536,7 @@ export default class GanttHourly {
         }
 
                 // 设置滚动位置到当天
-        this.set_scroll_position_to_today();
+        //this.set_scroll_position_to_today();
     }
 
     // 功能: 设置甘特图的滚动位置，使其显示当天的时间

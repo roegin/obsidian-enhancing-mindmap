@@ -20,6 +20,7 @@ export class GanttChartHourlyView extends ItemView {
     gantt: any; // 保存 Gantt 实例的属性
     refreshInterval: any;
     private lastScrollTop: number = 0; // 存储垂直滚动位置
+    private lastScrollLeft: number = 0;
 
 
     constructor(leaf: WorkspaceLeaf) {
@@ -64,6 +65,14 @@ export class GanttChartHourlyView extends ItemView {
 
 
       async updateGanttChart() {
+        const container2 = document.getElementById('gantt-svg-hourly');
+        if (container2) {
+            // 保存当前的滚动位置
+            this.lastScrollTop = container2.scrollTop;
+            this.lastScrollLeft = container2.scrollLeft;
+            console.log('this.lastScrollTop',this.lastScrollTop,this.lastScrollLeft)
+        }
+
         // 从 Data View 获取目标列表项
         const targetListItems = await DataViewModule.getTargetListItems(this.app);
         // 过滤出昨天、今天、明天的任务
@@ -96,13 +105,16 @@ export class GanttChartHourlyView extends ItemView {
                 language: 'en',
                 custom_popup_html: null
             });
+
+            if (container) {
+                container.scrollTop = this.lastScrollTop;
+                container.scrollLeft = this.lastScrollLeft;
+            }
         }
 
         //功能: 更新甘特图后，恢复之前的滚动位置
-        const container2 = document.getElementById('gantt-svg-hourly');
-        if (container2) {
-            container2.scrollTop = this.lastScrollTop;
-        }
+       // const container2 = document.getElementById('gantt-svg-hourly');
+
     }
 
     getMindMapData(): INodeData[] {
