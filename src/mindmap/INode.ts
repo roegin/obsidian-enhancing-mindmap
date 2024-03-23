@@ -102,6 +102,22 @@ export default class Node {
         }
 
         this.parseText();
+
+        // 在这里处理时间字符串
+        
+        const specialTimeRegex = /(\d{4}-\d{2}-\d{2})-(\d{2}):(\d{2})-(\d+h|\d+min)/;
+        const specialTimeMatch = specialTimeRegex.exec(this.data.text);
+        if (specialTimeMatch) {
+            const formattedTime = `${specialTimeMatch[2]}:${specialTimeMatch[3]} ${specialTimeMatch[4]}`;
+            this.contentEl.innerHTML = this.contentEl.innerHTML.replace(specialTimeRegex, '');
+            const specialTimeElement = document.createElement('div');
+            specialTimeElement.classList.add('special-time');
+            specialTimeElement.textContent = formattedTime;
+            this.contentEl.appendChild(specialTimeElement);
+        }
+
+       // this.refreshBox()
+        
     }
 
     initNodeBar(){
@@ -295,11 +311,18 @@ export default class Node {
         var text = this.contentEl.innerText.trim()||'';
         this.data.text = text;
         this.contentEl.innerText = '';
+
+        
         
         MarkdownRenderer.renderMarkdown(text,this.contentEl,this.mindmap.path||"",null).then(()=>{
             this.data.mdText = this.contentEl.innerHTML;
             this.refreshBox();
+            // this.parseAndFormatText();
+
             this._delay();
+            this.applySpecialTimeFormat();
+
+            
         });
 
         if(text != this._oldText){
@@ -313,11 +336,64 @@ export default class Node {
         this.contentEl.setAttribute('contentEditable','false');
         this.isEdit = false;
 
+
+
         if(this.containEl.classList.contains('mm-edit-node')){
             this.containEl.classList.remove('mm-edit-node')
         }
 
+
+
+
+  
+
     }
+
+    // 新方法：解析Markdown并格式化特定时间字符串
+    parseAndFormatText() {
+        MarkdownRenderer.renderMarkdown(this.data.text, this.contentEl, this.mindmap.path || "", null).then(() => {
+            this.data.mdText = this.contentEl.innerHTML;
+            this.refreshBox();
+            this.applySpecialTimeFormat();
+            // ... 其他逻辑 ...
+        });
+    }
+
+    // 新方法：应用特定时间格式
+    applySpecialTimeFormat() {
+        const specialTimeRegex = /(\d{4}-\d{2}-\d{2})-(\d{2}):(\d{2})-(\d+h|\d+min)/;
+        let textContent = this.data.text;
+        const specialTimeMatch = specialTimeRegex.exec(textContent);
+        
+        if (specialTimeMatch) {
+            const formattedTime = `${specialTimeMatch[2]}:${specialTimeMatch[3]} ${specialTimeMatch[4]}`;
+            console.log('pre-textContent',textContent)
+            textContent = textContent.replace(specialTimeRegex, ''); // 移除特定格式的时间字符串
+            this.contentEl.innerHTML = ''; // 清空内容
+
+            // 首先渲染剩余的文本内容
+            MarkdownRenderer.renderMarkdown(textContent, this.contentEl, this.mindmap.path || "", null).then(() => {
+                // 然后添加特定格式的时间字符串
+                const specialTimeElement = document.createElement('div');
+                specialTimeElement.classList.add('special-time');
+                console.log('formattedTime',textContent,formattedTime)
+                specialTimeElement.textContent = formattedTime;
+                this.contentEl.appendChild(specialTimeElement);
+
+                // 重新计算并设置节点大小
+                this.refreshBox();
+            });
+        } else {
+            this.contentEl.innerHTML = ''; // 清空内容以避免重复
+            MarkdownRenderer.renderMarkdown(textContent, this.contentEl, this.mindmap.path || "", null).then(() => {
+                this.refreshBox(); // 仍然需要重新计算节点大小
+            });
+        }
+    }
+
+
+    
+
 
     getLevel() {
         var level = 0, parent = this.parent;

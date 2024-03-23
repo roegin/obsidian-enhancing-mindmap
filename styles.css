@@ -350,3 +350,15 @@
   overflow-x: auto;
   height: 20px; /* 根据需要调整高度 */
 }
+
+/* 功能: 为特殊时间格式添加样式 */
+.special-time {
+  background-color: #327d96; /* 浅蓝色背景 */
+  color: white;             /* 白色文字 */
+  padding: 5px 10px;        /* 内边距 */
+  border-radius: 20px;      /* 圆角边框 */
+  display: inline-block;    /* 行内块显示 */
+  margin: 5px;              /* 外边距 */
+  transform: scale(0.6);    /* 缩小40% */
+  transform-origin: left;   /* 缩放原点在左侧 */
+}
