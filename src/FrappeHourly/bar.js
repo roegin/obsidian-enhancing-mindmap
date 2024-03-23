@@ -106,7 +106,7 @@ export default class Bar {
                 x: this.x,
                 y: this.y + this.height, // 在任务条的底部
                 width: this.width,
-                height: 2, // 光芒的高度，可根据需要调整
+                height: 5, // 光芒的高度，可根据需要调整
                 fill: 'yellow', // 光芒的颜色
                 append_to: this.bar_group,
             });

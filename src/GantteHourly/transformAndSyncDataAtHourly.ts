@@ -1,4 +1,5 @@
 interface MindMapNode {
+  isDayLevel?: boolean;
   id: string;
   text: string;
   children?: MindMapNode[];
@@ -20,6 +21,7 @@ interface GanttTask {
     parent: string;
     dependencies?:string;
     custom_class?:string;
+    isDayLevel?: boolean;
 }
 
 // 功能: 转换并同步数据，创建一个新的树结构，仅包含特定标签的节点，并更新父节点引用
@@ -28,24 +30,14 @@ export function transformAndSyncDataAtHourly(mindMapNodes: MindMapNode[]): Gantt
   const today = new Date().toISOString().split('T')[0]; // 当天日期，格式 YYYY-MM-DD
   const nodeIdMap = new Map<string, string>(); // 用于存储原始节点ID与新节点ID的映射
 
-  // 功能: 查找节点的最近符合条件的祖先节点ID
-  // 功能: 查找节点的最近符合条件的祖先节点ID
-  function findClosestAncestorId(nodeId: string): string | null {
-    let currentId = nodeId;
-    while (currentId) {
-        if (nodeIdMap.has(currentId)) {
-            return nodeIdMap.get(currentId);
-        }
-        let currentNode = mindMapNodes.find(node => node.id === currentId);
-        currentId = currentNode && currentNode.parent ? currentNode.parent : null;
-    }
-    return null;
-  }
+
 
   // 功能: 递归遍历思维导图节点
   function traverseMindMapNode(node: MindMapNode, closestTargetAncestorId: string | null) {
     // 正则表达式来检查日期字符串是否包含时间部分
     const dateTimeRegex = /\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/;
+
+
   
     // 检查节点是否包含指定标签，以及 startDate 或 endDate 是否包含具体的时间信息
     if (node.text.includes("#目标")) {
@@ -59,6 +51,12 @@ export function transformAndSyncDataAtHourly(mindMapNodes: MindMapNode[]): Gantt
         let taskStart = node.startDate || node.actionStartDate || today;
         let taskEnd = node.endDate || node.actionEndDate || taskStart;
 
+        // 检查节点是否有startDate或endDate
+        let isDayLevel
+        if (node.startDate || node.endDate) {
+           isDayLevel = true; // 设置isDayLevel为true
+        }
+
         const ganttTask: GanttTask = {
           id: newId,
           name: node.text,
@@ -66,7 +64,8 @@ export function transformAndSyncDataAtHourly(mindMapNodes: MindMapNode[]): Gantt
           end: taskEnd,
           progress: 20,
           parent: closestTargetAncestorId || '', // 使用最近的符合条件的祖先节点ID
-          dependencies: closestTargetAncestorId || ''
+          dependencies: closestTargetAncestorId || '',
+          isDayLevel:isDayLevel
         };
 
         ganttTasks.push(ganttTask);
