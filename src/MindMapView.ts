@@ -572,20 +572,31 @@ export class MindMapView extends TextFileView implements HoverParent {
   }
 
   async openGanttChartHourlyView() {
-    const existingView = this.app.workspace.getLeavesOfType('gantt-chart-hourly-view')[0];
-    if (existingView) {
-        this.app.workspace.setActiveLeaf(existingView);
+    const existingGanttChartView = this.app.workspace.getLeavesOfType('gantt-chart-view')[0];
+
+    if (existingGanttChartView) {
+        // 激活已有的普通甘特图 Leaf
+        this.app.workspace.setActiveLeaf(existingGanttChartView);
+
+        // 在已有 Leaf 中创建新的 Tab 用于小时甘特图
+        const newLeaf = this.app.workspace.createLeafBySplit(existingGanttChartView, 'tab-after');
+        await newLeaf.setViewState({
+            type: "gantt-chart-hourly-view",
+        });
     } else {
+        // 如果没有普通甘特图，则创建一个新的 Leaf
         let activeLeaf = this.app.workspace.activeLeaf;
         if (activeLeaf) {
-          console.log('打开脑图连接小时甘特图')
+            console.log('创建新的小时甘特图 Leaf');
             const newLeaf = this.app.workspace.createLeafBySplit(activeLeaf, 'horizontal');
             await newLeaf.setViewState({
                 type: "gantt-chart-hourly-view",
             });
         }
     }
-}
+  }
+
+
 
 
   
