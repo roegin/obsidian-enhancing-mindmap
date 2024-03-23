@@ -242,7 +242,7 @@ export class GanttChartView extends ItemView {
                 这些属性使得每个返回的列表项对象能够提供丰富的上下文信息，如所在文件的名称、位置和包含的标签等。
                 */
                 
-                // 调用函数
+                // 调用函数1
                 const singleDayTasks=await getTargetListItems(this.app)
 
                 async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {

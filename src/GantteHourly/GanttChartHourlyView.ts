@@ -19,6 +19,7 @@ interface MindMapNode {
 export class GanttChartHourlyView extends ItemView {
     gantt: any; // 保存 Gantt 实例的属性
     refreshInterval: any;
+    private lastScrollTop: number = 0; // 存储垂直滚动位置
 
 
     constructor(leaf: WorkspaceLeaf) {
@@ -37,10 +38,13 @@ export class GanttChartHourlyView extends ItemView {
         const container = this.containerEl.children[1];
         container.empty();
 
+        
+
         // 创建单日甘特图的 SVG 元素
         const svgElementSingleDay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svgElementSingleDay.id = 'gantt-svg-hourly';
         container.appendChild(svgElementSingleDay);
+        
 
         this.updateGanttChart()
 
@@ -48,6 +52,7 @@ export class GanttChartHourlyView extends ItemView {
         this.refreshInterval = setInterval(() => {
             this.updateGanttChart();
         }, 300000); // 300000 毫秒等于五分钟
+        
     }
 
     async onClose() {
@@ -92,11 +97,17 @@ export class GanttChartHourlyView extends ItemView {
                 custom_popup_html: null
             });
         }
+
+        //功能: 更新甘特图后，恢复之前的滚动位置
+        const container2 = document.getElementById('gantt-svg-hourly');
+        if (container2) {
+            container2.scrollTop = this.lastScrollTop;
+        }
     }
 
     getMindMapData(): INodeData[] {
         const mindMapView = this.getMindMapView();
-        //console.log('mindMapView',mindMapView)
+        // console.log('mindMapView',mindMapView) 
         if (!mindMapView) {
             return [];
         }

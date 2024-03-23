@@ -342,3 +342,11 @@
   fill: #ffffff; /* 文本颜色 */
   font-size: 12px; /* 文本大小 */
 }
+
+.horizontal-scroll-wrapper {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  overflow-x: auto;
+  height: 20px; /* 根据需要调整高度 */
+}
