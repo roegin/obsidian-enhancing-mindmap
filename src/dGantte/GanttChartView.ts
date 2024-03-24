@@ -38,7 +38,7 @@ export class GanttChartView extends ItemView {
     }
   
     getDisplayText() { //
-        return "Gantt Chart";
+        return "📊BigGantte";
     }
 
     // 功能: 动态加载CSS文件

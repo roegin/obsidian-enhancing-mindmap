@@ -536,7 +536,7 @@ export default class GanttHourly {
         }
 
                 // 设置滚动位置到当天
-        //this.set_scroll_position_to_today();
+        this.set_scroll_position_to_today();
     }
 
     // 功能: 设置甘特图的滚动位置，使其显示当天的时间

@@ -31,7 +31,7 @@ export class GanttChartHourlyView extends ItemView {
     }
   
     getDisplayText() {
-        return "Hourly Gantt Chart";
+        return "⏳HourlyGanttChart";
     }
 
     async onOpen() {
