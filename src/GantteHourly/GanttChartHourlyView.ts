@@ -48,6 +48,11 @@ export class GanttChartHourlyView extends ItemView {
 
         this.updateGanttChart()
 
+        // 确保只有一个定时器在运行
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+
                 // 设置定时器每五分钟刷新一次视图
         this.refreshInterval = setInterval(() => {
             this.updateGanttChart();
@@ -107,7 +112,9 @@ export class GanttChartHourlyView extends ItemView {
             // 从思维导图获取数据
             const mindMapData = this.getMindMapData();
 
+
             const mindMapGanttData = transformAndSyncDataAtHourly(mindMapData);
+           // console.log('mindMapGanttData',mindMapGanttData)
 
             // 合并两组数据，DataViewModule 数据在前
             const combinedGanttData = [...filteredTasksToFull, ...mindMapGanttData];
@@ -139,7 +146,7 @@ export class GanttChartHourlyView extends ItemView {
             }
 
             // 视图更新后，使用之前记录的滚动位置来恢复状态
-            if(this.gantt){
+            if(this.gantt&&(currentScrollPosition.x&&currentScrollPosition.y)){
                 this.gantt.set_scroll_position(currentScrollPosition.x, currentScrollPosition.y);
             }
 

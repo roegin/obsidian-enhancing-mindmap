@@ -650,6 +650,7 @@ export class MindMapView extends TextFileView implements HoverParent {
     setTimeout(() => this.restoreScrollPosition(), 100);
   }
 
+
   
   showDatePicker() {
     // 显示日期选择器的逻辑

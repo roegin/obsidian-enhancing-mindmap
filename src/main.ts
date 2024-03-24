@@ -146,10 +146,29 @@ export default class MindMapPlugin extends Plugin {
     this.addSettingTab(new MindMapSettingsTab(this.app, this));
 
 
-    //增加md变更触发更新
-        // 设置文件修改监听器
+    // 注册视图变化监听器
+      this.registerEvent(
+        this.app.workspace.on('active-leaf-change', this.handleActiveLeafChange.bind(this))
+    );
 
 
+  }
+
+  // 当活动叶子（视图）变化时的处理函数
+  private handleActiveLeafChange() {
+    const activeView = this.app.workspace.getActiveViewOfType(MindMapView);
+    if (activeView) {
+        // 如果当前激活的视图是脑图视图，则更新甘特图
+        const ganttView = activeView.getGanttChartView();
+        if (ganttView) {
+            ganttView.updateGanttChart();
+        }
+
+        const ganttHourlyView = activeView.getGanttChartHourlyView();
+        if (ganttHourlyView) {
+            ganttHourlyView.updateGanttChart();
+        }
+    }
   }
 
   getMindMapView(): MindMapView {
@@ -180,28 +199,33 @@ export default class MindMapPlugin extends Plugin {
   }
 
   async newMindMap(folder?: TFolder) {
-    const targetFolder = folder
-      ? folder
-      : this.app.fileManager.getNewFileParent(
+    const targetFolder = folder || this.app.fileManager.getNewFileParent(
         this.app.workspace.getActiveFile()?.path || ""
-      );
+    );
 
     try {
-      // @ts-ignore
-      const mindmap: TFile = await this.app.fileManager.createNewMarkdownFile(
-        targetFolder,
-        `${t('Untitled mindmap')}`
-      );
+        // 创建新的 Markdown 文件作为脑图
+        //@ts-ignore
+        const mindmap: TFile = await this.app.fileManager.createNewMarkdownFile(
+            targetFolder,
+            `${t('Untitled mindmap')}`
+        );
 
-      await this.app.vault.modify(mindmap, basicFrontmatter);
-      await this.app.workspace.activeLeaf.setViewState({
-        type: mindmapViewType,
-        state: { file: mindmap.path },
-      });
+        await this.app.vault.modify(mindmap, basicFrontmatter);
+
+        // 创建一个新的 leaf 在新标签中
+        let newLeaf = this.app.workspace.getLeaf(true);
+        
+        // 设置新 leaf 的视图状态
+        await newLeaf.setViewState({
+            type: mindmapViewType,
+            state: { file: mindmap.path },
+        });
     } catch (e) {
-      console.error("Error creating mindmap board:", e);
+        console.error("Error creating mindmap board:", e);
     }
-  }
+}
+
 
   async loadSettings() {
     this.settings = Object.assign({
