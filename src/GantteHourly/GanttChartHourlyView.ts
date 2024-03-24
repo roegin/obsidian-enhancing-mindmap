@@ -70,14 +70,9 @@ export class GanttChartHourlyView extends ItemView {
 
 
       async updateGanttChart() {
-        // 取消之前的定时器（如果存在）
-        if (this.updateTimer) {
-            clearTimeout(this.updateTimer);
-            this.updateTimer = null;
-        }
 
 
-        const updateLogic = async () => {
+
             // 在更新视图前获取当前的滚动位置
             let currentScrollPosition
             if(this.gantt){
@@ -114,7 +109,7 @@ export class GanttChartHourlyView extends ItemView {
 
 
             const mindMapGanttData = transformAndSyncDataAtHourly(mindMapData);
-           // console.log('mindMapGanttData',mindMapGanttData)
+            console.log('mindMapGanttData',mindMapGanttData)
 
             // 合并两组数据，DataViewModule 数据在前
             const combinedGanttData = [...filteredTasksToFull, ...mindMapGanttData];
@@ -150,16 +145,9 @@ export class GanttChartHourlyView extends ItemView {
                 this.gantt.set_scroll_position(currentScrollPosition.x, currentScrollPosition.y);
             }
 
-                        // ...剩余的更新逻辑
-        };
 
-        // 立即执行一次更新
-        await updateLogic();
 
-        // 设置一个五秒后的延时，再次执行更新
-        this.updateTimer = setTimeout(async () => {
-            await updateLogic();
-        }, 5000); // 5000 毫秒 = 5 秒
+
 
     }
 
