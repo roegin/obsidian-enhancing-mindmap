@@ -244,18 +244,28 @@ export class GanttChartView extends ItemView {
                 
                 // 调用函数1
                 const singleDayTasks=await getTargetListItems(this.app)
+                // 功能: 对日期字符串进行格式化，使其为当天的0点（开始）
 
                 async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {
                     const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)(?:\s|$)/;
                 
                     return listItems.map(item => {
-                        const dateMatch = dateRegex.exec(item.text);
-                        const name=item.text
-                        const start = dateMatch ? dateMatch[1] : null;
-                        const end = dateMatch && dateMatch[2] ? dateMatch[2] : start; // 如果没有结束日期，使用开始日期
-                        return { ...item, start, end ,name};
+                    const dateMatch = dateRegex.exec(item.text);
+                    const name = item.text;
+                    let start = dateMatch ? formatDate(dateMatch[1]) : null;
+                    let end = dateMatch && dateMatch[2] ? formatDate(dateMatch[2]) : start; // 如果没有结束日期，使用开始日期
+                
+                    return { ...item, start, end, name };
                     });
                 }
+                
+                function formatDate(dateStr: string): string {
+                    const dateParts = dateStr.split('-');
+                    // 仅日期部分: 年-月-日
+                    const formattedDate = dateParts.length > 2 ? `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}` : dateStr;
+                    return formattedDate + '-00:00:00'; // 格式化为当天的0点
+                }
+  
 
                 const tasksWithDateInfo = await addDateInfoToListItems(singleDayTasks);
                 console.log('tasksWithDateInfo',tasksWithDateInfo)
@@ -347,17 +357,28 @@ export class GanttChartView extends ItemView {
             // 调用函数
             const singleDayTasks=await getTargetListItems(this.app)
 
+            // 功能: 对日期字符串进行格式化，使其为当天的0点（开始）
+
             async function addDateInfoToListItems(listItems: any[]): Promise<any[]> {
                 const dateRegex = /(?:^|\s)(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?)(?:\s|$)/;
             
                 return listItems.map(item => {
-                    const dateMatch = dateRegex.exec(item.text);
-                    const name=item.text
-                    const start = dateMatch ? dateMatch[1] : null;
-                    const end = dateMatch && dateMatch[2] ? dateMatch[2] : start; // 如果没有结束日期，使用开始日期
-                    return { ...item, start, end ,name};
+                const dateMatch = dateRegex.exec(item.text);
+                const name = item.text;
+                let start = dateMatch ? formatDate(dateMatch[1]) : null;
+                let end = dateMatch && dateMatch[2] ? formatDate(dateMatch[2]) : start; // 如果没有结束日期，使用开始日期
+            
+                return { ...item, start, end, name };
                 });
             }
+            
+            function formatDate(dateStr: string): string {
+                const dateParts = dateStr.split('-');
+                // 仅日期部分: 年-月-日
+                const formattedDate = dateParts.length > 2 ? `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}` : dateStr;
+                return formattedDate + '-00:00:00'; // 格式化为当天的0点
+            }
+  
 
             const tasksWithDateInfo = await addDateInfoToListItems(singleDayTasks);
             console.log('singleDayTasks',singleDayTasks)
