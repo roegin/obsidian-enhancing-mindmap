@@ -35,7 +35,8 @@ export function transformAndSyncDataAtHourly(mindMapNodes: MindMapNode[]): Gantt
   // 功能: 递归遍历思维导图节点
   function traverseMindMapNode(node: MindMapNode, closestTargetAncestorId: string | null) {
     // 正则表达式来检查日期字符串是否包含时间部分
-    const dateTimeRegex = /\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/;
+    const dateTimeRegex = /\d{4}-\d{2}-\d{2}(?:-\d{2}:\d{2})?/;
+
 
 
   

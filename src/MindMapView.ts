@@ -512,6 +512,7 @@ export class MindMapView extends TextFileView implements HoverParent {
       }
 
 
+
       var map: INodeData = {
         id: id || uuid(),
         text: mapData.v,

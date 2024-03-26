@@ -78,7 +78,8 @@ export class GanttChartHourlyView extends ItemView {
 
 
         const updateLogic = async () => {
-            // 在更新视图前获取当前的滚动位置
+            //暂停功能: 在更新视图前获取当前的滚动位置
+            /*
             let currentScrollPosition
             if(this.gantt){
                 currentScrollPosition = {
@@ -86,6 +87,7 @@ export class GanttChartHourlyView extends ItemView {
                     y: this.gantt.getScrollPositionY()
                 };
             }
+            */
 
 
 
@@ -145,10 +147,12 @@ export class GanttChartHourlyView extends ItemView {
 
             }
 
-            // 视图更新后，使用之前记录的滚动位置来恢复状态
+            //暂停功能: 视图更新后，使用之前记录的滚动位置来恢复状态
+            /*
             if(this.gantt&&(currentScrollPosition.x&&currentScrollPosition.y)){
                 this.gantt.set_scroll_position(currentScrollPosition.x, currentScrollPosition.y);
-            }
+            }\
+            */
 
                         // ...剩余的更新逻辑
         };
