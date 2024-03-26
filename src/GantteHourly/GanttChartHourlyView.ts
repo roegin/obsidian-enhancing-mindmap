@@ -123,7 +123,7 @@ export class GanttChartHourlyView extends ItemView {
 
 
             // 检查是否有任务数据
-            if (combinedGanttData.length > 0) {
+            if (mindMapGanttData.length > 0) {
                 // 清空甘特图容器
                 const container = document.getElementById('gantt-svg-hourly');
                 if (container) {
@@ -136,7 +136,7 @@ export class GanttChartHourlyView extends ItemView {
                 
 
                 // 初始化并渲染甘特图
-                this.gantt = new GanttHourly('#gantt-svg-hourly', combinedGanttData, {
+                this.gantt = new GanttHourly('#gantt-svg-hourly', mindMapGanttData, {
                     view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month', 'Fifteen Minutes'],
                     view_mode: 'Quarter Day',
                     date_format: 'YYYY-MM-DD-HH:mm',
